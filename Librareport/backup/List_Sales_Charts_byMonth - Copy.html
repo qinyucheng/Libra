@@ -1,0 +1,219 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <!--[if lt IE 9]>
+<script type="text/javascript" src="lib/html5shiv.js"></script>
+<script type="text/javascript" src="lib/respond.min.js"></script>
+<![endif]-->
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <!--[if IE 6]>
+<script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+<script>DD_belatedPNG.fix('*');</script>
+<![endif]-->
+    <title>Series</title>
+</head>
+
+<body>
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> *** <span class="c-gray en">&gt;</span> **** <span class="c-gray en">&gt;</span> **** <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新"><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="page-container">
+
+        <div id="container" style="min-width:700px;height:400px"></div>
+    </div>
+    <div>
+
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table">
+
+
+            </table>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+   
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+
+    <script type="text/javascript">
+        function displayChart(outputdata) {
+            Highcharts.chart('container', {
+
+                title: {
+                    text: 'Monthly Sales',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                xAxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Otc', 'Nov', 'Dec']
+                },
+                yAxis: {
+                    title: {
+                        text: '(USD)'
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }]
+                },
+                tooltip: {
+                    valueSuffix: '(USD)'
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: outputdata
+            });
+        }
+        $(document).ready(function() {
+            autoDisplayData();
+
+        });
+
+        var nameArr = ['Ebay', 'Amazon', 'Libra on line store', 'Walmart', 'Local Pickup', 'Axle Plus', 'Cherokee MFG', 'Southern Powersports', 'Jackson Trailers', 'Sure Trac', 'Tex Trail, Inc', 'Superior Axle', 'Choice Trailer Products, LLC', 'NewEgg', 'H.S.I Tire', 'P & T Trailer', 'Dave Carter Associates', 'L&B Pitstop', 'Cool Sports', 'JW Steel', 'Titan Trailer Mfg, Inc.', 'Retco Trailer MFG', 'Steelfab Mfg', 'The Steel Works', 'RS Supply']
+        //var titleArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Otc', 'Nov', 'Dec']
+        var titleArr = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        //var monthArr = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+        var monthArr = ['01', '02', '03', '04', '05', '06'];
+
+        function autoDisplayData() {
+            var finalArr = [];
+            var tableArr = [];
+            $.ajax({
+                url: 'List_Sales_Charts_byMonth.php',
+                data: {
+                    action: 'get_summary_ByMonth'
+                },
+                type: 'post',
+                success: function(output) {
+                    var data = jQuery.parseJSON(output);
+                    var tempObj = {};
+                    for (var name in nameArr) {
+                        var list = {}
+                        var tempArr = [];
+                        tempObj = {};
+                        $.each(data, function(k, v) {
+                            var getMonth = v['Month'];
+                            var Quantity = v['Quantity'];
+                            var getAmount = v['Amount'];
+                            var getName = v['CustomerRefFullName'];
+                            if (nameArr[name] == getName) {
+                                tempObj = {};
+                                tempObj.month = getMonth;
+                                tempObj.Quantity = Quantity;
+                                tempObj.Amount = getAmount;
+                                tempArr.push(tempObj)
+
+                            }
+
+                        });
+                        list.name = nameArr[name];
+						var getFormatData=[];
+						var getFormatDataForTable=[];
+                        getFormatData = formatDataForChart(tempArr);
+						list.data = getFormatData;
+                        getFormatDataForTable[0] = nameArr[name];
+						getFormatDataForTable=getFormatDataForTable.concat(getFormatData);
+                        tableArr.push(getFormatDataForTable);
+                        
+                        if (nameArr[name] == "Amazon" || nameArr[name] == 'Ebay' || nameArr[name] == 'Walmart' || nameArr[name] == 'Libra on line ') {
+                            list.visible = true;
+                        } else {
+                            list.visible = false;
+                        }
+                        finalArr.push(list);
+
+                    }
+                    displayChart(finalArr);
+                    displayTable(tableArr)
+                }
+            });
+        }
+
+		function formatDataForChart(data) {
+            var newArr = [];
+            for (var i in monthArr)
+				 {
+               
+					if(data.length>0)
+					{
+						 if (monthArr[i] == data[0].month ) {
+                        newArr.push(Math.round(data[0].Amount * 100) / 100);
+                        data.splice(0, 1);
+						
+
+						} else  {
+							newArr.push(0);
+							
+
+						}
+					
+					}
+					else{
+					newArr.push(0);
+					}
+                   
+					
+
+                   
+                }
+
+       
+            return newArr;
+
+        }
+
+        function formatDataForTable(name, getData) {
+            getData.unshift(name)
+
+
+            return getData;
+
+        }
+
+        function displayTable(contentArr) {
+            var arr = [];
+            var obj = {};
+            obj.title = 'name';
+            arr.push(obj);
+            for (var i in titleArr) {
+                obj = {};
+                obj.title = titleArr[i];
+                arr.push(obj)
+            }
+
+            $('#table').DataTable({
+			"pageLength": 50,
+                data: contentArr,
+                columns: arr
+
+            });
+        }
+    </script>
+</body>
+
+</html>

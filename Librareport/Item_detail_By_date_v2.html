@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+	<script>
+        document.domain = '192.168.1.4'
+    </script>
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+        width: 800px;
+        margin: 0 auto;
+		
+    }
+	.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	#table  {
+       
+        margin: 0;
+		
+    }
+	tr { height: 20px } 
+	/*
+	div.dataTables_wrapper .dataTables_filter {
+float: left;
+text-align: left;
+}*/
+</style>
+    <title id='pageTitle'>Item_by_date</title>
+</head>
+
+<body>
+
+   
+
+    <div class="mt-20">
+
+        <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table" style="margin: 0;"></table>
+    </div>
+    <script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="lib/URI.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+	 <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+
+    <script type="text/javascript">
+       var height = $(window).height();
+		var setHeigth=($(window).height() - 100); 
+        $(document).ready(function() {
+			getURI()
+           
+         
+
+            $("#getNewReport").click(function() {
+                var startDate = document.getElementById("datemin").value;
+                var endDate = document.getElementById("datemax").value;
+                var CustomerName = $('#ddCustomerName').val();
+				if(CustomerName="Ebay1")
+				{
+				 $(document).prop('title', 'Ebay PayPal Libra');
+				}
+				else
+				{
+					$(document).prop('title', CustomerName);
+				}
+                
+                getData(startDate, endDate, CustomerName);
+            });
+
+        });
+		function getURI()
+			{
+				var URLParams = URI.parseQuery(window.location.search);
+				
+                var ListID = URLParams.ListID;
+                var startDate = URLParams.startDate;
+                var endDate = URLParams.endDate;
+                var Customer = URLParams.Customer;
+              getData(ListID,startDate, endDate, Customer)
+			}
+
+        function getData(ListID,startDate, endDate, CustomerName) {
+            loadingLayer();
+
+            $.ajax({
+                url: 'Item_detail_By_date_v2.php',
+                data: {
+                    "ListID": ListID,
+                    "startDate": startDate,
+                    "endDate": endDate,
+                    "CustomerName": CustomerName
+                },
+                type: 'post',
+                success: function(output) {
+                    var salesAmount = [];
+                    customersArr = [];
+                    itemsArr = [];
+                    tableData = [];
+                    var data = jQuery.parseJSON(output);
+
+                    displayTable(data,startDate,startDate);
+
+                    layer.close(layerIndex);
+                }
+            });
+        }
+
+
+
+
+        function displayTable(data,startDate,startDate) {
+            loadingLayer();
+            $(".mt-20").empty();
+            $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            //generateDropdownList(customersArr);
+            var table = $('#table').DataTable({
+                scrollY: setHeigth,
+               
+                scrollCollapse: true,
+                paging: false,
+				select: true,
+                fixedColumns: true,
+				
+                data: data,
+
+                "columns": [{
+                        "title": "Date",
+                        "data": "shipdate"
+                    },{
+                        "title": "Customer",
+                        "data": "Customer"
+                    },
+                    
+                    {
+                        "title": "ItemName",
+                        "data": "ItemName"
+                    },
+					{
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "Quantity",
+                        "data": "items_sales_num",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    }, {
+                        "title": "Amount",
+                        "data": "items_sales_Amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },{
+                        "title": "INV",
+                        "data": "QuantityOnHand",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                  
+
+                ]
+
+            });
+			
+			
+
+        }
+		
+		 var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+    </script>
+    </script>
+</body>
+</html>

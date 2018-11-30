@@ -1,0 +1,379 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+
+    <title>Series</title>
+</head>
+
+<body>
+ <div class="text-c"><div style="float:left;margin-left:80px">
+    Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+        <select name="yearpicker" id="yearpicker" width="80px"></select>
+
+        <button type="submit" class="btn btn-success" id="getNewReport" name=""><i class="icon-search"></i> Search</button>
+
+    </div>
+    <div class="page-container">
+
+        <div id="container" style="min-width:700px;height:400px"></div>
+    </div>
+    <div>
+
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table">
+
+
+            </table>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/moment.js"></script>
+    <script type="text/javascript">
+        var startDate = '';
+        var endDate = '';
+        //var monthArr = monthList(startDate, endDate);
+		 var nameArr = [];
+		 var level2_ListIDArr = [];
+		 $(document).ready(function() {
+			
+			setYears();
+            //autoDisplayData();
+			getOrdreData();
+			$("#getNewReport").click(function() {
+                $(".mt-20").empty();
+                $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+                var FinalDataArray = [];
+				getOrdreData();
+               // autoDisplayData();
+            });
+			
+
+        });
+        function displayChart(outputdata) {
+		  $(".container").empty(); 
+		  $(".highcharts-data-table").remove(); 
+            Highcharts.chart('container', {
+
+                title: {
+                    text: 'Monthly Sales',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                xAxis: {
+                    categories: monthArr
+                },
+                 yAxis: {
+					max: 2000,
+					min:0
+				},
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                series: outputdata
+            });
+        }
+        
+
+   function setYears() {
+            for (i = new Date().getFullYear(); i > 2013; i--) {
+                $('#yearpicker').append($('<option />').val(i).html(i));
+            }
+			$('#yearpicker').append($('<option />').val("All").html("All"));
+
+        }
+		 function getOrdreData() {
+         
+			 var ed = new Date();
+            var ey = ed.getFullYear();
+            var startYear = document.getElementById("yearpicker").value;
+			if(startYear!="All")
+			{
+				 if (startYear == ey) {
+                 startDate = startYear + "-01-01";
+                var em = ed.getMonth() + 1;
+                 endDate = ey + "-" + em + "-31";
+
+				} else {
+					 startDate = startYear + "-01-01";
+					 endDate = startYear + "-12-31";
+
+				}
+			}
+			else{
+				startDate='2016-01-01';
+				endDate=getCurrentMonth();
+			
+			}
+           
+			
+            $.ajax({
+                url: 'List_Sales_Charts_byMonth_v2_b.php',
+                  data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                type: 'post',
+                success: function(output) {
+                    var data = jQuery.parseJSON(output);				
+                     nameArr = data;
+					 autoDisplayData(nameArr);
+                }
+            });
+        }
+        function autoDisplayData(nameArr) {
+            var finalArr = [];
+            var tableArr = [];
+			 var ed = new Date();
+            var ey = ed.getFullYear();
+            var startYear = document.getElementById("yearpicker").value;
+			if(startYear!="All")
+			{
+				 if (startYear == ey) {
+                 startDate = startYear + "-01-01";
+                var em = ed.getMonth() + 1;
+                 endDate = ey + "-" + em + "-31";
+
+				} else {
+					 startDate = startYear + "-01-01";
+					 endDate = startYear + "-12-31";
+
+				}
+			}
+			else{
+				startDate='2016-01-01';
+				endDate=getCurrentMonth();
+			
+			}
+           
+			monthArr = monthList(startDate, endDate);
+            $.ajax({
+                url: 'List_Sales_Charts_byMonth_v2.php',
+                  data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                type: 'post',
+                success: function(output) {
+                    var data = jQuery.parseJSON(output);
+                    var tempObj = {};
+				
+                   
+                    for (var name in nameArr) {
+                        var list = {}
+                        var tempArr = [];
+                        tempObj = {};
+                        $.each(data, function(k, v) {
+                            var getMonth = v['Month'];
+                            var Quantity = v['Quantity'];
+                            var getAmount = v['Amount'];
+                            var getName = v['FullName'];
+                          
+                            if (nameArr[name].FullName == getName) {
+                                tempObj = {};
+                                tempObj.month = getMonth;
+                                tempObj.Quantity = Quantity;
+                                tempObj.Amount = getAmount;
+                                tempArr.push(tempObj)
+
+                            }
+
+                        });
+                        list.name = nameArr[name].FullName;
+                        var getFormatData = [];
+                        var getFormatDataForTable = [];
+                        getFormatData = formatDataForChart(tempArr);
+                        list.data = getFormatData;
+                        var sum = getFormatData.reduce((a, b) => a + b, 0);
+                        getFormatDataForTable[0] = nameArr[name].FullName;
+
+                        getFormatDataForTable = getFormatDataForTable.concat(getFormatData);
+                        tableArr.push(getFormatDataForTable);
+						
+							if(name<=5)
+							{
+							list.visible = true;
+							}
+							else
+							{
+							list.visible = false;
+							}
+						
+						
+                      
+                        finalArr.push(list);
+
+                    }
+                    displayChart(finalArr);
+                    displayTable(tableArr)
+                }
+            });
+        }
+
+        
+		
+
+        function formatDataForChart(data) {
+            var newArr = [];
+            for (var i in monthArr) {
+			
+				for(var v in data)
+				{
+					 if (monthArr[i] == data[v].month) {
+						var tempArr=getCurrentMonth().split('-');
+						var year=tempArr[0];
+						var month=tempArr[1];
+						var currentMonth=year+'-'+month
+							 if(currentMonth==data[v].month)	
+							{
+								
+								var getdays=daysInMonth(year,month)
+								var currentDate=getCurrentDate();
+								var e_Quantity=((parseInt(data[v].Quantity)/currentDate)*getdays);
+								newArr.push(Math.round(e_Quantity ));
+							}
+							else{
+							
+								newArr.push(parseInt(data[v].Quantity));
+							}
+							
+							break;
+							
+						}
+					else if(v==(data.length-1)){
+					 newArr.push(0);
+					}
+										
+				
+				}
+			}
+
+               
+            return newArr;
+        }
+		function daysInMonth(year, month) {
+			return new Date(year, month, 0).getDate();
+		}
+		function getCurrentDate()
+		{
+			var d = new Date();
+			var day = d.getDate();
+			return day;
+		}
+
+        function displayTable(contentArr) {
+		
+            var arr = [];
+            var obj = {};
+            obj.title = 'Name';
+            arr.push(obj);
+            for (var i in monthArr) {
+                obj = {};
+                obj.title = monthArr[i];
+                arr.push(obj)
+            }
+
+            $('#table').DataTable({
+                "pageLength": 50,
+                data: contentArr,
+				 "ordering": false,
+                columns: arr
+
+            });
+			
+			console.log(contentArr);
+        }
+
+        function monthList(startDate, endDate) {
+            var start = startDate.split('-');
+            var end = endDate.split('-');
+            var startYear = parseInt(start[0]);
+            var endYear = parseInt(end[0]);
+            var dates = [];
+
+            for (var i = startYear; i <= endYear; i++) {
+                var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+                var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+                for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                    var month = j + 1;
+                    var displayMonth = month < 10 ? '0' + month : month;
+                    dates.push([i, displayMonth].join('-'));
+                }
+            }
+            return dates;
+        }
+
+        function setdate() {
+            var sd = new Date();
+            sd.setDate(sd.getDate() - 1);
+            var sy = sd.getFullYear();
+            var sm = "01";
+            var sdd = "01";
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            $("#datemin").val(sy + "-" + sm);
+            $("#datemax").val(ey + "-" + em);
+        }
+
+        function getCurrentMonth() {
+
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            return ey + "-" + em + "-" +edd;
+
+        }
+
+    </script>
+</body>
+
+</html>

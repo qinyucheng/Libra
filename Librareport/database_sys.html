@@ -1,0 +1,210 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+        width: 800px;
+        margin: 0 auto;
+		
+    }
+	.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	#table  {
+       
+        margin: 0;
+		
+    }
+	tr { height: 20px } 
+	/*
+	div.dataTables_wrapper .dataTables_filter {
+float: left;
+text-align: left;
+}*/
+</style>
+    <title id='pageTitle'>Series</title>
+</head>
+
+<body>
+    <div>
+        <div style="margin-left: 100px;margin-top: 20px;"> <button type="button" id="sys_all">sys_all</button><span> : < 5 minutes </span></div><br>
+        <div style="margin-left: 100px;"> <button type="button" id="sys_inventory">sys_inventory</button><span> : < 2 minutes </span></div><br>
+        <div style="margin-left: 100px;"> <button type="button" id="sys_item">sys_item</button><span> : < 2 minutes </span></div><br>
+        <div style="margin-left: 100px;"> <button type="button" id="sys_salesDetail">sys_salesDetail</button><span> : < 2 minutes </span></div>
+    </div><br>
+
+    <div class="mt-20">
+
+        <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table" style="margin: 0;"></table>
+    </div>
+    <script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#sys_all").click(function() {
+                sys_All();
+            });
+            $("#sys_inventory").click(function() {
+                sys_Inventory();
+            });
+            $("#sys_item").click(function() {
+                sys_Items();
+            });
+            $("#sys_salesDetail").click(function() {
+                sys_sales();
+            });
+
+        });
+
+
+        function sys_All() {
+            loadingLayer();
+
+            $.ajax({
+                url: 'sys_all2.php',
+
+                type: 'post',
+                success: function(json) {
+                    layer.close(layerIndex);
+                    $(".mt-20").empty();
+                    $(".mt-20").append("<div id='info' style='margin-left: 100px;'>" + json + "</div>");
+
+                }
+            });
+
+        }
+
+        function sys_Inventory() {
+            loadingLayer();
+
+            $.ajax({
+                url: 'sys_inventory.php',
+
+                type: 'post',
+                success: function(json) {
+                    layer.close(layerIndex);
+                    $(".mt-20").empty();
+                    $(".mt-20").append("<div id='info' style='margin-left: 100px;'>" + json + "</div>");
+
+
+                }
+            });
+        }
+
+        function sys_Items() {
+            loadingLayer();
+
+
+            $.ajax({
+                url: 'sys_item.php',
+
+                type: 'post',
+                success: function(json) {
+                    layer.close(layerIndex);
+
+                    $(".mt-20").empty();
+                    $(".mt-20").append("<div id='info' style='margin-left: 100px;'>" + json + "</div>");
+
+
+                }
+            });
+        }
+
+        function sys_sales() {
+            loadingLayer();
+
+
+            $.ajax({
+                url: 'sys_salesDetail.php',
+
+                type: 'post',
+                success: function(json) {
+                    layer.close(layerIndex);
+                    $(".mt-20").empty();
+                    $(".mt-20").append("<div id='info' style='margin-left: 100px;'>" + json + "</div>");
+
+                }
+            });
+        }
+
+
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+
+        function formatYesterday() {
+            $today = new Date();
+            $yesterday = new Date($today);
+            $yesterday.setDate($today.getDate() - 1); //setDate also supports negative values, which cause the month to rollover.
+            var $dd = $yesterday.getDate();
+            var $mm = $yesterday.getMonth() + 1; //January is 0!
+
+            var $yyyy = $yesterday.getFullYear();
+            if ($dd < 10) {
+                $dd = '0' + $dd
+            }
+            if ($mm < 10) {
+                $mm = '0' + $mm
+            }
+            $yesterday = $yyyy + '-' + $mm + '-' + $dd;
+
+            return $yesterday;
+
+        }
+
+        function formatToday() {
+
+
+            $today = new Date();
+
+            var $dd = $today.getDate();
+            var $mm = $today.getMonth() + 1; //January is 0!
+
+            var $yyyy = $today.getFullYear();
+            if ($dd < 10) {
+                $dd = '0' + $dd
+            }
+            if ($mm < 10) {
+                $mm = '0' + $mm
+            }
+            $today = $yyyy + '-' + $mm + '-' + $dd;
+            console.log($today);
+            return $today;
+
+        }
+    </script>
+    </script>
+</body>
+
+</html>

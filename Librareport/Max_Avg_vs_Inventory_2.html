@@ -1,0 +1,712 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+       
+        margin: 0 auto;
+    }
+	.Max_since_jan{
+    background-color: #edca07 !important;
+	}.Max_last_3_mon {
+		background-color: #edca07 !important;
+	}.Max_last_6_mon {
+		background-color: #edca07 !important;
+	}.Avg_last_6_mon {
+		background-color: #efec9e !important;
+	}.Avg_since_jan {
+		background-color: #efec9e !important;
+	}.Avg_last_3_mon {
+		background-color: #efec9e !important;
+	}.QuantityOnHand {
+		background-color: #03c13c !important;
+	}
+	table.dataTable tbody td {
+		word-break: break-word;
+		vertical-align: top;
+	}
+tr { height: 20px } 
+.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+</style>
+    <title>Max Avg vs Inventory</title>
+</head>
+
+<body>
+
+    <div class="text-c">
+        <select name="yearpicker" id="yearpicker" width="80px"></select>
+
+        <button type="submit" class="btn btn-success" id="getNewReport" name=""><i class="icon-search"></i> Search</button>
+
+    </div>
+
+    <div class="mt-20">
+
+        <!--table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table-->
+    </div>
+    <script type="text/javascript" src="multiselect/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="multiselect/jquery-ui-1.11.2.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+
+    <script type="text/javascript" src="multiselect/ui.dropdownchecklist.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+
+
+    <script type="text/javascript">
+		var height = $(window).height();
+	var setHeigth=($(window).height() - 150);
+	var width = $(window).width(); 
+	var setWidth=($(window).width() - 100);
+        var customersArr = [];
+        var customersArr2 = [];
+        var ItemsArr = [];
+        var topHeader;
+        var topHeader2;
+        var selectedValues = [];
+        var selectedCheckboxValues = [];
+
+        var tableData = [];
+        var finalColumns = [];
+        var coustomersArr = [];
+        $(document).ready(function() {
+		 $("div.dataTables_wrapper").css( "width", setWidth); 
+            $(".mt-20").empty();
+            $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            setYears();
+            //setdate();
+            getInventoryByItem();
+
+            $("#getNewReport").click(function() {
+                $(".mt-20").empty();
+                $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+                var FinalDataArray = [];
+
+                getInventoryByItem();
+            });
+			
+
+        });
+
+
+        function getInventoryByItem() {
+            loadingLayer();
+            $.ajax({
+                url: 'Max_Avg_vs_get_Inventory.php',
+                type: 'post',
+                success: function(output) {
+
+                    var InventoryByItem = jQuery.parseJSON(output);
+                    getData(InventoryByItem);
+
+                }
+            });
+
+        };
+
+        function setYears() {
+            for (i = new Date().getFullYear(); i > 2013; i--) {
+                $('#yearpicker').append($('<option />').val(i).html(i));
+            }
+
+        }
+
+        function getData(InventoryByItemArr) {
+            loadingLayer();
+            var ed = new Date();
+            var ey = ed.getFullYear();
+            var startYear = document.getElementById("yearpicker").value;
+            if (startYear == ey) {
+                var startDate = startYear + "-01-01";
+                var em = ed.getMonth() + 1;
+                var endDate = ey + "-" + em + "-31";
+
+            } else {
+                var startDate = startYear + "-01-01";
+                var endDate = startYear + "-12-31";
+
+            }
+
+            var monthArr = dateRange(startDate, endDate);
+            var ListIDArr = [];
+
+            $.ajax({
+                url: 'Max_Avg_vs_Inventory_2.php',
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                type: 'post',
+                success: function(output) {
+                    var tableArr = [];
+                    var data = jQuery.parseJSON(output);
+
+                    var tempMonthArr = [];
+                    var tempArr = [];
+                    tempObj = {};
+                    var count = 0;
+                    $.each(data, function(k, v) {
+					var a=k;
+                        var ItemObj = {};
+
+                        var Final_sales_quantity = v.Final_sales_quantity;
+
+                        var level2_FullName = v.level2_FullName.trim();
+                        if (level2_FullName == 'OTR tire:12018') {
+                            console.log('OTR tire:12018')
+                        }
+                        var level2_ListID = v.level2_ListID;
+
+                        var Final_sales_amount = v.Final_sales_amount;
+                        var shipdate = v.shipdate;
+
+                        if (tempArr.length > 0) {
+
+
+                            if (level2_FullName == tempArr[count - 1].level2_FullName) {
+                                tempObj = {};
+
+
+                                tempObj.level2_FullName = level2_FullName;
+                                tempObj.shipdate = shipdate;
+                                var CurrentMonth = getCurrentMonth();
+                                if (shipdate == CurrentMonth) {
+                                    var ed = new Date();
+
+                                    var ey = ed.getFullYear();
+                                    var em = ed.getMonth() + 1;
+                                    var edd = ed.getDate();
+                                    var getDaysInMonth = daysInMonth(em, ey);
+                                    estQuantity = Math.round((parseInt(Final_sales_quantity) / edd) * getDaysInMonth);
+                                    tempObj.Final_sales_quantity = estQuantity;
+
+
+                                } else {
+                                    tempObj.Final_sales_quantity = Final_sales_quantity;
+                                }
+
+
+                                tempArr.push(tempObj);
+                                count++;
+                            } else {
+                                getFormatData = formatDataForTabel(tempArr, monthArr);
+                                tableArr.push(getFormatData);
+                                tempArr = [];
+                                tempObj = {};
+                                count = 0;
+
+                                tempObj.level2_FullName = level2_FullName;
+                                tempObj.shipdate = shipdate;
+                                tempObj.Final_sales_quantity = Final_sales_quantity;
+                                tempArr.push(tempObj);
+                                count++;
+
+                            }
+                        }
+                        if (tempArr.length == 0) {
+                            tempObj = {};
+
+                            tempObj.Final_sales_quantity = Final_sales_quantity;
+                            tempObj.level2_FullName = level2_FullName;
+                            tempObj.shipdate = shipdate;
+
+                            tempArr.push(tempObj);
+                            count++;
+                        }
+						if(k==data.length-1)
+						{
+								getFormatData = formatDataForTabel(tempArr, monthArr);
+                                tableArr.push(getFormatData);
+						
+						}
+
+                    });
+
+                    displayToTable(InventoryByItemArr, tableArr, monthArr)
+                    layer.close(layerIndex);
+                }
+            });
+        };
+
+        function formatDataForTabel(data, monthArr) {
+
+            var newmonthArr = []
+            var newmonthArr = monthArr.slice();
+
+            var newArr = [];
+            var obj = {};
+
+            obj.level2_FullName = data[0].level2_FullName;
+
+            for (var i in newmonthArr) {
+
+                var tempObj = {};
+                if (data.length > 0) {
+                    if (newmonthArr[i] == data[0].shipdate) {
+
+                        tempObj[newmonthArr[i]] = data[0].Final_sales_quantity;
+                        newArr.push(tempObj);
+                        data.splice(0, 1);
+
+
+                    } else {
+                        var Final_sales_quantity = "";
+                        tempObj[newmonthArr[i]] = Final_sales_quantity;
+                        newArr.push(tempObj);
+
+
+                    }
+
+                } else {
+                    var Final_sales_quantity = "";
+                    tempObj[newmonthArr[i]] = Final_sales_quantity;
+                    newArr.push(tempObj);
+                }
+
+            }
+            obj.sales_quantity_by_month = newArr;
+            return obj;
+
+
+        }
+
+        function dateRange(startDate, endDate) {
+            var start = startDate.split('-');
+            var end = endDate.split('-');
+            var startYear = parseInt(start[0]);
+            var endYear = parseInt(end[0]);
+            var dates = [];
+
+            for (var i = startYear; i <= endYear; i++) {
+                var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+                var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+                for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                    var month = j + 1;
+                    var displayMonth = month < 10 ? '0' + month : month;
+                    dates.push([i, displayMonth].join('-'));
+                }
+            }
+            return dates;
+        }
+
+        function getCustomerArr(dataArr) {
+
+            for (var i in dataArr) {
+                var customerName = dataArr[i][0];
+                if (customersArr.indexOf(customerName) == -1) {
+                    customersArr.push(customerName);
+                }
+
+            }
+            return customersArr;
+        }
+
+        function getItemsArr(dataArr) {
+
+            for (var i in dataArr) {
+                var itemName = dataArr[i][1];
+                if (ItemsArr.indexOf(itemName) == -1) {
+                    ItemsArr.push(itemName);
+                }
+
+            }
+            return ItemsArr;
+
+        }
+
+        var table;
+
+        function displayToTable(InventoryByItemArr, data, monthArr) {
+            var FinalDataArray = [];
+            var newmonthArr = []
+            var newmonthArr = monthArr.slice();
+
+
+
+            for (var j in data) {
+			data[j].ItemDesc = '';
+                for (var i in InventoryByItemArr) {
+
+                    var Blank = InventoryByItemArr[i].Blank;
+					
+                    var ItemDesc = InventoryByItemArr[i].ItemDesc;
+                    var QuantityOnHand = InventoryByItemArr[i].QuantityOnHand;
+                    var ListName = data[j].level2_FullName;
+                    if (Blank.trim().toLowerCase() == ListName.trim().toLowerCase()) {
+						
+                        data[j].level2_FullName = data[j].level2_FullName.substring(0, 30);
+                        if (ItemDesc.ItemDesc = '') {
+                            data[j].ItemDesc = '';
+                        } else {
+                            data[j].ItemDesc = ItemDesc.substring(0, 30);
+                        }
+
+                        data[j].QuantityOnHand = QuantityOnHand;
+                        break;
+
+                    }
+					else if(i==InventoryByItemArr.length-1)
+					{
+					
+					data[j].ItemDesc = '';
+					data[j].QuantityOnHand = '************';
+					}
+
+                }
+
+
+            }
+
+            for (var c in data) {
+
+                var monthObj = data[c].sales_quantity_by_month;
+                var FullName = data[c].level2_FullName;
+				if(FullName=='AP Kits:23002')
+				{
+				  var a=1;
+				}
+                var since_jan_Arr = [];
+                var last_3_mon = [];
+                var last_6_mon = [];
+                $.each(monthObj, function(k, v) {
+
+                    $.each(monthObj[k], function(key, value) {
+					if(value=="")
+					{
+					value=0;
+					}
+                        since_jan_Arr.push(parseInt(value));
+                    });
+
+                });
+                var Max_since_jan = Math.max.apply(Math, since_jan_Arr)
+                //get since_jan average
+				
+               
+                var Avg_since_jan = Math.round(since_jan_Arr.reduce(getSum)/since_jan_Arr.length);
+                data[c].Max_since_jan = Max_since_jan;
+                data[c].Avg_since_jan = Math.round(Avg_since_jan);
+                //last 3 month 
+                if (monthObj.length >= 3) {
+                    for (z = monthObj.length - 1; z >= ((monthObj.length) - 3); z--) {
+                        $.each(monthObj[z], function(k, v) {
+						if(v=="")
+							{
+							v=0;
+							}
+                            last_3_mon.push(parseInt(v));
+                        });
+
+                    }
+                    var Max_last_3_mon = Math.max.apply(Math, last_3_mon);
+                    
+					 var Avg_last_3_mon = Math.round(last_3_mon.reduce(getSum)/last_3_mon.length);
+                    
+                    data[c].Avg_last_3_mon = Math.round(Avg_last_3_mon);
+                    data[c].Max_last_3_mon = Max_last_3_mon;
+                    if (Avg_last_3_mon > data[c].QuantityOnHand) {
+                        data[c].Inv_Lower_Than_3_Mo_Avg = "<span style='color:pink;font-weight:bold'>YES</span>";
+                    } else {
+                        data[c].Inv_Lower_Than_3_Mo_Avg = "<span style='color:#c3d0e5;font-weight:bold'>No</span>";
+                    }
+                } else {
+                    data[c].Avg_last_3_mon = "N/A";
+                    data[c].Max_last_3_mon = "N/A";
+                    data[c].Inv_Lower_Than_3_Mo_Avg = "N/A";
+
+                }
+
+                //last 6 month 
+                if (monthObj.length >= 6) {
+                    for (y = monthObj.length - 1; y >= ((monthObj.length) - 6); y--) {
+                        $.each(monthObj[y], function(k, v) {
+						if(v=="")
+							{
+							v=0;
+							}
+                            last_6_mon.push(parseInt(v));
+                        });
+                    }
+                    var Max_last_6_mon = Math.max.apply(Math, last_6_mon);
+                   
+					 var Avg_last_6_mon = Math.round(last_6_mon.reduce(getSum)/last_6_mon.length);
+                    data[c].Max_last_6_mon = Max_last_6_mon;
+                    data[c].Avg_last_6_mon = Math.round(Avg_last_6_mon);
+                } else {
+                    data[c].Max_last_6_mon = "N/A";
+                    data[c].Avg_last_6_mon = "N/A";
+
+                }
+
+            }
+            var ed = new Date();
+            var ey = ed.getFullYear();
+            var searchYear = monthArr[0].split('-');
+
+
+            var columns = genarateColumns(monthArr);
+
+
+            table = $('#table').DataTable({
+                destroy: true,
+				select: true,
+                scrollY: setHeigth,
+               
+                scrollCollapse: true,
+                paging: false,
+                autoWidth: true,
+                data: data,
+                fixedColumns: {
+                    leftColumns: 2
+                },
+
+                columns: columns,
+
+                columnDefs: [{
+                        "width": "15px",
+                        "targets": [0, 1]
+                    }
+
+                ],
+				 dom: 'Bfrtip',
+				 buttons: [{
+                    extend: 'excel',
+                    title: '',
+                    text: 'Download To Excel'
+                }],
+
+            });
+
+            var columnStart = parseInt(monthArr.length + 1);
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+				var cell1 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 1)
+                }).node();
+                $(cell1).addClass('QuantityOnHand');
+                var cell2 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 2)
+                }).node();
+                $(cell2).addClass('Max_since_jan');
+                var cell3 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 3)
+                }).node();
+                $(cell3).addClass('Max_last_3_mon');
+                var cell4 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 4)
+                }).node();
+                $(cell4).addClass('Max_last_6_mon');
+                var cell5 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 5)
+                }).node();
+                $(cell5).addClass('Avg_since_jan');
+                var cell6 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 6)
+                }).node();
+                $(cell6).addClass('Avg_last_3_mon');
+                var cell7 = table.cell({
+                    row: rowIdx,
+                    column: (parseInt(columnStart) + 7)
+                }).node();
+                $(cell7).addClass('Avg_last_6_mon');
+               
+            });
+			
+			$('#table tbody').on('dblclick', 'tr', function () {
+				var data = table.row( this ).data();
+				alert( 'You clicked on '+data.level2_FullName+'\'s row' );
+				} );
+
+
+        }
+
+        function genarateColumns(newmonthArr) {
+            var arr = [{
+                    title: "Name",
+                    data: "level2_FullName"
+                },
+                {
+                    title: "ItemDesc",
+                    data: "ItemDesc"
+                }
+            ];
+
+            for (var i in newmonthArr) {
+                var obj = {};
+
+                var CurrentMonth = getCurrentMonth();
+				var titleArr=newmonthArr[i].split('-')
+                if (newmonthArr[i] == CurrentMonth) {
+                    obj.title = "E-" + titleArr[1];
+                } else {
+                    obj.title = titleArr[1];
+                }
+                obj.data = "sales_quantity_by_month." + [i] + "." + newmonthArr[i];
+
+                arr.push(obj);
+            }
+            var arr2 = [
+				{
+                    title: "INV",
+                    data: "QuantityOnHand",
+                    render: function(data, type, row) {
+                        return Math.round(data);
+                    },
+                },{
+                    title: "MTD",
+                    "data": "Max_since_jan"
+                },
+                {
+                    title: "M_3",
+                    "data": "Max_last_3_mon"
+                },
+                {
+                    title: "M_6",
+                    "data": "Max_last_6_mon"
+                },
+                {
+                    title: "ATD",
+                    "data": "Avg_since_jan"
+                },
+                {
+                    title: "A_3",
+                    "data": "Avg_last_3_mon"
+                },
+                {
+                    title: "A_6",
+                    "data": "Avg_last_6_mon"
+                },
+                
+                {
+                    title: "Inv Lower Than 3-Mo Avg",
+                    data: "Inv_Lower_Than_3_Mo_Avg"
+                }
+            ];
+            var FinalColumns = arr.concat(arr2);
+            return FinalColumns;
+        }
+			function getSum(total, num) {
+				return total + num;
+			}
+        function getAvg(data) {
+            var sum = 0;
+            for (var i = 0; i < data.length-1; i++) {
+			if(data[i]=='')
+			{
+			data[i]=0;
+			}
+                //sum += parseInt(data[i], 10); //don't forget to add the base
+                sum += parseInt(data[i]); //don't forget to add the base
+            }
+
+            var avg = sum / data.length;
+            return avg;
+
+        }
+
+
+        function setdate() {
+            var sd = new Date();
+            sd.setDate(sd.getDate() - 1);
+            var sy = sd.getFullYear();
+            var sm = "01";
+            var sdd = "01";
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            $("#datemin").val(sy + "-" + sm);
+            $("#datemax").val(ey + "-" + em);
+        }
+
+        function getCurrentMonth() {
+
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            return ey + "-" + em;
+
+        }
+
+        function daysInMonth(month, year) {
+            return new Date(year, month, 0).getDate();
+        }
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+    </script>
+
+    </script>
+</body>
+
+</html>

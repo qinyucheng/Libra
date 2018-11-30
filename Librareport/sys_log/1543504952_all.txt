@@ -1,0 +1,14 @@
+2018-11-29 04:18:35 pm
+total No. of  item_Inventory: 213 
+total No. of  item_Assembly: 0 
+total No. of  item_Service: 0 
+total No. of  item_NonInventory: 0 
+total No. of  item_ItemOtherCharge: 0 
+total No. of  item_Discount: 0 
+total No. of  ItemSalesTax: 0 
+total No. of  ItemGroup: 0 
+total No. of  iteminventoryassemblyline: 0 
+total No. of  SalesByItemDetail: 247 
+total No. of  PhysicalInventory: 629 
+item_assembly_quantity_percentage: updated 
+items_sales_: updated 

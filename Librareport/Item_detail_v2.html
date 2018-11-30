@@ -1,0 +1,726 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+<script>
+        document.domain = '192.168.1.4'
+    </script>
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+       
+        margin: 0 0;
+		
+    }
+	.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	#table  {
+       
+        margin: 0;
+		
+    }
+	tr { height: 20px } 
+		span.markYellow {
+  background: yellow;
+  color: black;
+}
+	span.markBlue {
+  background: blue;
+  color: white;
+}
+</style>
+    <title>Series</title>
+</head>
+
+<body>
+     <div style="float:left;margin-left:80px">
+    Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+    <div class="text-c"> Date：
+		<input type="text" onfocus="WdatePicker({ maxDate:'#F{$dp.$D(\'datemax\')||\'%y-%M-%d\'}' })" id="datemin" class="input-text Wdate" style="width:120px;">
+       
+        -
+		<input type="text" onfocus="WdatePicker({ minDate:'#F{$dp.$D(\'datemin\')}',maxDate:'%y-%M-%d' })" id="datemax" class="input-text Wdate" style="width:120px;">
+       
+      
+        <button type="submit" class="btn btn-success" id="getNewReport" name=""><i class="icon-search"></i> Search</button>
+
+    </div>
+	
+	<div class="text-c"> Toggle Column:
+       
+        <select id="s5a" class="s5a" multiple="" style="display: none;">
+
+        </select>
+        
+    </div>
+	
+    <div class="mt-20">
+
+        <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table" style="margin: 0;"></table>
+    </div>
+    <script type="text/javascript" src="multiselect/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="multiselect/jquery-ui-1.11.2.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+
+    <script type="text/javascript" src="multiselect/ui.dropdownchecklist.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+	<script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.es6.js"></script>
+
+    <script type="text/javascript">
+	$(function() {
+
+            $("input[name='item']").on("keyup", function() {
+                var keyword = $(this).val(),
+                    options = {
+                        "element": "span",
+                        "className": "markYellow",
+                        "separateWordSearch": true
+                    },
+                    $ctx = $("#table tr  td:nth-child(1)");
+                $ctx.unmark({
+                    done: function() {
+                        $ctx.mark(keyword, options);
+                        $('.dataTables_scrollBody').scrollTop(0);
+                        // Go to row
+                        var scrollObj = $('.markYellow:first').position();
+                        if (scrollObj == undefined) {
+                            $('.dataTables_scrollBody').scrollTop(0);
+                        } else {
+                            $('.dataTables_scrollBody').scrollTop(scrollObj.top);
+                        }
+
+
+                        // $('.dataTables_scrollBody').animate({scrollTop: scrollObj.top}, 500);
+
+
+                    }
+                });
+            });
+
+
+        });
+	var height = $(window).height();
+	var setHeigth=($(window).height() - 230);
+	var width = $(window).width(); 
+	var setWidth=($(window).width() - 100);
+        var customersArr = [];
+        var customersArr2 = [];
+        var ItemsArr = [];
+        var topHeader;
+        var topHeader2;
+        var selectedValues = [];
+        var selectedCheckboxValues = [];
+
+        var tableData = [];
+        var finalColumns = [];
+        var coustomersArr = [];
+        $(document).ready(function() {
+
+            setdate();
+            getData();
+
+            $("div.dataTables_wrapper").css( "width", setWidth); 
+			$("#getNewReport").click(function() {
+
+                getNewReport();
+            });
+			
+
+        });
+
+		
+
+        function getData() {
+            loadingLayer();
+
+            var startDate = document.getElementById("datemin").value;
+            var endDate = document.getElementById("datemax").value;
+            var newStartDatelist = "'" + startDate + "'";
+            var newEndDatelist = "'" + endDate + "'";
+            $.ajax({
+                url: 'Item_detail_v2.php',
+                data: {
+                    "startDate": newStartDatelist,
+                    "endDate": newEndDatelist
+                },
+                type: 'post',
+                success: function(output) {
+                    var salesAmount = [];
+                    customersArr = [];
+                    itemsArr = [];
+                    tableData = [];
+                    var data = jQuery.parseJSON(output);
+
+                    coustomersArr = getCustomerArr(data);
+                    itemsArr = getItemsArr(data);
+                    tableData = generateData(itemsArr, data, coustomersArr);
+                    finalColumns = generateColumns(coustomersArr);
+                    generateDropdownList(coustomersArr);
+                    generateTopHeader(coustomersArr);
+
+                    var dataObj = {};
+                    dataObj.data = tableData;
+                    displayToTable(tableData, finalColumns, coustomersArr,startDate,endDate);
+
+                    layer.close(layerIndex);
+                }
+            });
+
+        }
+
+        function getCustomerArr(dataArr) {
+
+            for (var i in dataArr) {
+                var customerName = dataArr[i].Customer;
+                if (customersArr.indexOf(customerName) == -1) {
+                    customersArr.push(customerName);
+                }
+
+            }
+            return customersArr;
+        }
+
+        function getItemsArr(dataArr) {
+
+            for (var i in dataArr) {
+                var itemName = dataArr[i].ItemName;
+                if (itemsArr.indexOf(itemName) == -1) {
+                    itemsArr.push(itemName);
+                }
+
+            }
+            return itemsArr;
+
+        }
+
+        function generateData(itemsArr, salesAmount, sellersArr) {
+            TableArr = [];
+
+            for (var k in itemsArr) {
+                var ItemObj = {};
+                var itemName = itemsArr[k];
+                ItemObj.itemName = itemName;
+                ItemObj.Description = "";
+                ItemObj.level2_ListID = "";
+
+                if (itemName !== "") {
+                    for (var i = 0; i < salesAmount.length; i++) {
+
+                        var getItemName = salesAmount[i].ItemName;
+                        var Description = salesAmount[i].Description;
+                        var level2_ListID = salesAmount[i].level2_ListID;
+						
+                        var getSellerName = salesAmount[i].Customer;
+                        getSellerName = getSellerName.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+						
+                        var Item_sales_Quantity = salesAmount[i].total_sales_items;
+                        var item_seller_Amount = salesAmount[i].total_amount;
+                        if (itemName == getItemName) {
+                            //newArr.push(Math.round(data[0].Amount * 100) / 100);
+                            //ItemObj[getSellerName]=(Math.round(item_seller_Amount * 100) / 100);
+                            var tempArr = [accounting.formatNumber(Item_sales_Quantity, "", "", "."), accounting.formatNumber(item_seller_Amount, 2, ",", ".")];
+                            ItemObj[getSellerName] = tempArr;
+							ItemObj.Description=Description;
+							ItemObj.level2_ListID=level2_ListID;
+                            //ItemObj[getSellerName]=accounting.formatNumber(item_seller_Amount, 2, ",", ".");
+
+
+                        } else if (i == (salesAmount.lenght - 1)) {
+                            var tempArr = ['', ''];
+                            ItemObj[getSellerName] == tempArr;
+							ItemObj.Description=Description;
+							ItemObj.level2_ListID=level2_ListID;
+
+                        }
+                    }
+                    for (var n in sellersArr) {
+                        var sellerName = sellersArr[n];
+                        sellerName = sellerName.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+                        var getSellersArr = Object.keys(ItemObj);
+                        if (getSellersArr.indexOf(sellerName) == -1) {
+                            var tempArr = ['', ''];
+                            ItemObj[sellerName] = tempArr;
+                        }
+                    }
+                    TableArr.push(ItemObj);
+
+                }
+            }
+            return TableArr;
+        }
+
+        function generateColumns(sellersArr) {
+            var obj1 = {};
+            var obj2 = {};
+            obj1.data = 'itemName';
+            obj1.title = 'Customer' 
+			obj2.data = 'Description';
+            obj2.title = 'Description';
+            var array = [obj1,obj2];
+			
+				obj1 = {};
+                obj1.data = "Amazon.0";
+                obj1.title = "Quantity";
+                obj2 = {};
+                obj2.data = "Amazon.1";
+                obj2.title = "Amount";
+                array.push(obj1);
+                array.push(obj2);
+				obj1 = {};
+                obj1.data = "Ebay.0";
+                obj1.title = "Quantity";
+                obj2 = {};
+                obj2.data = "Ebay.1";
+                obj2.title = "Amount";
+                array.push(obj1);
+                array.push(obj2);
+				
+				obj1 = {};
+                obj1.data = "Walmart.0";
+                obj1.title = "Quantity";
+                obj2 = {};
+                obj2.data = "Walmart.1";
+                obj2.title = "Amount";
+                array.push(obj1);
+                array.push(obj2);
+				obj1 = {};
+                obj1.data = "Libra on line store.0";
+                obj1.title = "Quantity";
+                obj2 = {};
+                obj2.data = "Libra on line store.1";
+                obj2.title = "Amount";
+                array.push(obj1);
+                array.push(obj2);
+
+            for (var n in sellersArr) {
+                var sellerName = sellersArr[n].replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+				if(sellerName!="Walmart" && sellerName!="Amazon" && sellerName!="Ebay" && sellerName!="Libra on line store")
+				{
+					 obj1 = {};
+					obj1.data = sellerName + ".0";
+					obj1.title = "Quantity";
+					obj2 = {}; 
+					obj2.data = sellerName + ".1";
+					obj2.title = "Amount";
+					array.push(obj1);
+					array.push(obj2);
+				
+				}
+               
+            }
+
+            return array;
+        }
+
+        function generateTopHeader(sellersArr) {
+            topHeader = '<tr><th colspan="1" rowspan="1">itemName</th><th colspan="1" rowspan="1">Description</th>'
+			var Amazon_topHeader="";
+			var Ebay_topHeader="";
+			var Walmart_topHeader="";
+			var Libra_topHeader="";
+			for (var i in sellersArr) {
+                var sellerName = sellersArr[i];
+				if(sellerName=="Amazon")
+				{
+				Amazon_topHeader = '<th colspan="2" rowspan="1" id=' + 'Amazon' + '>' + 'Amazon' + '</th>';
+				
+				}
+				if(sellerName=="Ebay")
+				{
+				
+				Ebay_topHeader = '<th colspan="2" rowspan="1" id=' + 'Ebay' + '>' + 'Ebay' + '</th>';
+				
+				}if(sellerName=="Walmart")
+				{
+				
+				Walmart_topHeader = '<th colspan="2" rowspan="1" id=' + 'Walmart' + '>' + 'Walmart' + '</th>';
+			
+				}
+				if(sellerName=="Libra on line store")
+				{
+				
+				Libra_topHeader = '<th colspan="2" rowspan="1" id=' + 'Libra on line store' + '>' + 'Libra on line store' + '</th>';
+				
+				}
+
+            }
+			topHeader+=Amazon_topHeader+Ebay_topHeader+Walmart_topHeader+Libra_topHeader;
+            for (var i in sellersArr) {
+                var sellerName = sellersArr[i];
+				if(sellerName!="Walmart" && sellerName!="Amazon" && sellerName!="Ebay" && sellerName!="Libra on line store")
+				{
+                topHeader += '<th colspan="2" rowspan="1" id=' + sellerName + '>' + sellerName + '</th>';
+				}
+
+            }
+            topHeader += '</tr>';
+        }
+
+       
+
+        function generateDropdownList(sellersArr) {
+		 var mySelect = $('#s5a');
+            mySelect.append($('<option></option>').val(-1).html('All'));
+            for (var i in sellersArr) {
+ 
+ 
+                if (sellersArr[i] == 'Amazon' || sellersArr[i] == 'Ebay' || sellersArr[i] == 'Walmart' || sellersArr[i] == 'Libra on line store') {
+                    mySelect.append(
+                        $('<option selected="selected"></option>').val(i).html(sellersArr[i])
+
+                    );
+                    selectedValues.push(sellersArr[i]);
+                } else {
+                    mySelect.append(
+                        $('<option ></option>').val(i).html(sellersArr[i])
+                    );
+                }
+            }
+
+            $("#s5a").dropdownchecklist({
+                firstItemChecksAll: true,
+				
+                onComplete: function(selector) {
+                    var selectedCheckboxValues = [];
+                    var values = "";
+                    var newfinalColumns = [];
+                    var newCustomersArr = [];
+                    var newTableData = [];
+
+
+
+                    for (i = 0; i < selector.options.length; i++) {
+
+                        if (selector.options[i].value == -1 && selector.options[i].selected == true) {
+                            selectedCheckboxValues = customersArr;
+                        } else if (selector.options[i].value == -1 && selector.options[i].selected == false) {
+                            selectedCheckboxValues = [];
+                        }
+                        if (selector.options[i].value != -1 && selector.options[i].selected == true) {
+                            if (selectedCheckboxValues.indexOf(customersArr[selector.options[i].value]) == -1) {
+                                selectedCheckboxValues.push(customersArr[selector.options[i].value]);
+                            } else {
+
+                            }
+
+                        } else if (selector.options[i].value !== -1 && selector.options[i].selected == false) {
+                            if (selectedCheckboxValues.indexOf(customersArr[selector.options[i].value]) == -1) {
+
+                            } else {
+                                selectedCheckboxValues.splice(customersArr[selector.options[i].value], 1);
+
+                            }
+                        }
+
+                    }
+
+
+                    var newfinalColumns = [];
+                    var newCustomersArr = [];
+
+
+                    for (var i in finalColumns) {
+                        if (finalColumns[i].data == "itemName") {
+                            newfinalColumns.push(finalColumns[i]);
+                        }
+						if (finalColumns[i].data == 'Description') {
+                               newfinalColumns.push(finalColumns[i]);
+                            }
+                        for (var v in selectedCheckboxValues) {
+                            var value = selectedCheckboxValues[v];
+								value = value.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+                            if (finalColumns[i].data == value + ".0" || finalColumns[i].data == value + ".1") {
+
+                                newfinalColumns.push(finalColumns[i]);
+
+                            }
+
+                        }
+                    }
+                    var tempArr = [];
+                    for (var i in tableData) {
+
+                        var obj = {};
+                        $.each(tableData[i], function(key, value) {
+
+                            if (key == 'itemName') {
+                                obj['itemName'] = value;
+                            } if (key == 'Description') {
+                                obj['Description'] = value;
+                            }if (key == 'level2_ListID') {
+                                obj['level2_ListID'] = value;
+                            }
+                            for (var v in selectedCheckboxValues) {
+
+
+								var selectedCheckboxValue=selectedCheckboxValues[v];
+                                selectedCheckboxValue = selectedCheckboxValue.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+
+
+                                if (key == selectedCheckboxValue) {
+                                    obj[key] = value;
+                                }
+                            }
+
+                        });
+                        tempArr.push(obj);
+
+
+
+                    }
+                    for (var v in selectedCheckboxValues) {
+                        for (var i in coustomersArr) {
+                            if (coustomersArr[i] == selectedCheckboxValues[v]) {
+                                newCustomersArr.push(coustomersArr[i]);
+                            }
+
+                        }
+
+                    }
+
+
+                    displayTable2(newfinalColumns, newCustomersArr, tempArr);
+
+                }
+
+            });
+            $("#ddcl-s5a-ddw").css('text-align', 'left');
+
+        }
+
+       // var table;
+
+        function displayToTable(data, finalColumns, coustomersArr,startDate,endDate) {
+
+          var  table = $('#table').DataTable({
+		  scrollX: true,
+                scrollY: setHeigth,
+				
+				select: true,
+               
+                paging: false,
+                data: data,
+                "columns": finalColumns
+
+            });
+				$('#table tbody').on('dblclick', 'tr', function () {
+				var data = table.row( this ).data();
+				  var startDate = document.getElementById("datemin").value;
+				var endDate = document.getElementById("datemax").value;
+				openNewPage(data.level2_ListID,startDate,endDate,'',data.itemName)
+				
+				} );
+            var colCount3 = table.columns()[0].length;
+
+            topHeader2 = '<tr><th colspan="1" rowspan="1" id="amazon">itemName</th><th colspan="1" rowspan="1">Description</th>';
+            for (var i = 2; i < colCount3; i++) {
+                if (i % 2 === 0) {
+                    var columnSum = accounting.formatNumber(table.column(i).data().sum(), 0, "", ".");
+                } else {
+                    var columnSum = accounting.formatNumber(table.column(i).data().sum(), 2, ",", ".");
+                }
+
+                topHeader2 += '<th colspan="1" rowspan="1">' + columnSum + '</th>';
+            }
+            topHeader2 += '</tr>';
+
+
+            $(topHeader).insertBefore('table > thead > tr:first');
+            $(topHeader2).insertAfter('table > thead > tr:first');
+            $('.DTFC_Cloned tr:first').after('<tr role="row"><th>Item Name</th></tr>');
+            $('.DTFC_Cloned tr:first').after('<tr role="row"><th>Grand Total</th></tr>');
+            //refresh the page
+            table.page(0).draw(false);
+
+            $("#table").css('margin', '0');
+
+
+        }
+function openNewPage(ListID,startDate,endDate,Customer,ItemName)
+		{
+			var url="/Librareport/Item_detail_By_date_v2.html?ListID="+ListID+"&startDate="+startDate+"&endDate="+endDate+"&Customer="+Customer;
+			creatIframe(url,ItemName)
+		
+		}
+
+        function getNewReport() {
+            loadingLayer();
+            var url = 'Item_detail_v2.php';
+            var startDate = document.getElementById("datemin").value;
+            var endDate = document.getElementById("datemax").value;
+
+
+            if (startDate == "") {
+                alert("Please select start date!");
+				layer.close(layerIndex);
+                return;
+            }
+            if (endDate == "") {
+                alert("Please select End date!");
+				layer.close(layerIndex);
+                return;
+            }
+            
+
+            var newStartDatelist = "'" + startDate + "'";
+            var newEndDatelist = "'" + endDate + "'";
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: 'json',
+                data: {
+                    "startDate": newStartDatelist,
+                    "endDate": newEndDatelist,
+                },
+
+
+            }).success(function(output) {
+                $("#s5a").empty();
+                $("#ddcl-s5a").remove();
+                $(".mt-20").empty();
+                $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+                var salesAmount = [];
+                customersArr = [];
+                itemsArr = [];
+                tableData = [];
+                var data = output;
+
+                customersArr = getCustomerArr(data);
+                itemsArr = getItemsArr(data);
+                tableData = generateData(itemsArr, data, customersArr);
+                finalColumns = generateColumns(customersArr);
+
+                generateDropdownList(customersArr);
+
+                generateTopHeader(customersArr);
+
+                var dataObj = {};
+                dataObj.data = tableData;
+                displayToTable(tableData, finalColumns, customersArr);
+                layer.close(layerIndex);
+            });
+        }
+
+        function setdate() {
+            var sd = new Date();
+            sd.setDate(sd.getDate() - 1);
+            var sy = sd.getFullYear();
+            var sm = "01";
+            var sdd = "01";
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            $("#datemin").val(sy + "-" + sm + "-" + sdd);
+            $("#datemax").val(ey + "-" + em + "-" + edd);
+        }
+
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+
+        function displayTable2(newfinalColumns, newCustomersArr, tempArr) {
+		loadingLayer();
+           
+           
+            $(".mt-20").empty();
+            $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            //generateDropdownList(customersArr);
+           var  table = $('#table').DataTable({
+		   scrollX: false,
+                scrollY: setHeigth,
+				
+                select: true,
+                paging: false,              
+                data: tempArr,
+                "columns": newfinalColumns
+
+            });
+			$('#table tbody').on('dblclick', 'tr', function () {
+				var data = table.row( this ).data();
+				  var startDate = document.getElementById("datemin").value;
+				var endDate = document.getElementById("datemax").value;
+				openNewPage(data.level2_ListID,startDate,endDate,'',data.itemName)
+				
+				} );
+            generateTopHeader(newCustomersArr);
+            var colCount3 = table.columns()[0].length;
+
+            topHeader2 = '<tr><th colspan="1" rowspan="1" >itemName</th><th colspan="1" rowspan="1">Description</th>';
+            for (var i = 2; i < colCount3; i++) {
+                if (i % 2 === 0) {
+                    var columnSum = accounting.formatNumber(table.column(i).data().sum(), 0, "", ".");
+                } else {
+                    var columnSum = accounting.formatNumber(table.column(i).data().sum(), 2, ",", ".");
+                }
+
+                topHeader2 += '<th colspan="1" rowspan="1">' + columnSum + '</th>';
+            }
+            topHeader2 += '</tr>';
+
+
+            $(topHeader).insertBefore('table > thead > tr:first');
+            $(topHeader2).insertAfter('table > thead > tr:first');
+            $('.DTFC_Cloned tr:first').after('<tr role="row"><th>Item Name</th></tr>');
+            $('.DTFC_Cloned tr:first').after('<tr role="row"><th>Grand Total</th></tr>');
+            //refresh the page
+            table.page(0).draw(false);
+			
+			
+			//$('.ui-dropdownchecklist-text').css('width', '600');
+			  table.page(0).draw(false);
+			layer.close(layerIndex);
+			
+
+        }
+    </script>
+
+    </script>
+</body>
+
+</html>

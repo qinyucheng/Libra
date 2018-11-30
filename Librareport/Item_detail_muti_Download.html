@@ -1,0 +1,533 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+    <script>
+        document.domain = '192.168.1.4'
+    </script>
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+        width: 1000px;
+        margin: 0 auto;
+		
+    }
+	.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	#table  {
+       
+        margin: 0;
+		
+    }
+	tr { height: 20px } 
+	span.markYellow {
+  background: yellow;
+  color: black;
+}
+	span.markBlue {
+  background: blue;
+  color: white;
+}
+</style>
+    <title id='pageTitle'>Series</title>
+</head>
+
+<body>
+
+    <div class="text-c">
+        <div style="float:left;margin-left:80px">
+            <button onclick="tablesToExcel(['table1','table2','table3','table4'], ['amazon','ebaylibarPayPal','newegg','walmart'], 'Invoices_For_Axis.xls', 'Excel')">Export All of Data to Excel</button>
+        </div>
+        <select id='ddCustomerName'>
+            <option value="Amazon">Amazon</option>
+            <option value="Ebay1">Ebay PayPal Libra</option>
+            <option value="Walmart">Walmart</option>
+            <option value="Newegg">Newegg</option>
+            <option value="Ebay">Ebay</option>
+        </select>
+
+        Date：
+        <input type="text" onfocus="WdatePicker({ maxDate:'#F{$dp.$D(\'datemax\')||\'%y-%M-%d\'}' })" id="datemin" class="input-text Wdate" style="width:120px;">
+
+        -
+        <input type="text" onfocus="WdatePicker({ minDate:'#F{$dp.$D(\'datemin\')}',maxDate:'%y-%M-%d' })" id="datemax" class="input-text Wdate" style="width:120px;">
+
+
+        <button type="submit" class="btn btn-success" id="getNewReport" name=""><i class="icon-search"></i> Search</button>
+
+    </div>
+ <div style="float:left;margin-left:80px">
+    Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+    <div class="mt-20" id="oneTable">
+
+    </div>
+    <div class="mt-20" id="multiTable">
+
+    </div>
+    <script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.es6.js"></script>
+    <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+
+    <script src="lib/JSExcel.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $(function() {
+
+            $("input[name='item']").on("keyup", function() {
+                var keyword = $(this).val(),
+                    options = {
+                        "element": "span",
+                        "className": "markYellow",
+                        "separateWordSearch": true
+                    },
+                    $ctx = $("#table tr  td:nth-child(1)");
+                $ctx.unmark({
+                    done: function() {
+                        $ctx.mark(keyword, options);
+                        $('.dataTables_scrollBody').scrollTop(0);
+                        // Go to row
+                        var scrollObj = $('.markYellow:first').position();
+                        if (scrollObj == "undefind") {
+                            $('.dataTables_scrollBody').scrollTop(0);
+                        } else {
+                            $('.dataTables_scrollBody').scrollTop(scrollObj.top);
+                        }
+
+
+                        // $('.dataTables_scrollBody').animate({scrollTop: scrollObj.top}, 500);
+
+
+                    }
+                });
+            });
+
+
+        });
+        var width = $(window).width();
+        var height = $(window).height();
+        var setHeigth = ($(window).height() - 130);
+
+        var setWidth = ($(window).width() - 300);
+
+        if ((width >= 1024) && (height >= 768)) {
+            //do something
+        } else {
+            //do something else
+        }
+        $(document).prop('title', 'Amazon');
+        $(document).ready(function() {
+
+            setdate();
+            var startDate = document.getElementById("datemin").value;
+            var endDate = document.getElementById("datemax").value;
+
+            var CustomerName = "amazon";
+            getData(startDate, endDate);
+            getSingelData(startDate, endDate, CustomerName);
+
+            $("#getNewReport").click(function() {
+                var startDate = document.getElementById("datemin").value;
+                var endDate = document.getElementById("datemax").value;
+                var CustomerName = $('#ddCustomerName').val();
+                if (CustomerName == "Ebay1") {
+                    $(document).prop('title', 'Ebay PayPal Libra');
+                } else {
+                    $(document).prop('title', CustomerName);
+                }
+
+                getData(startDate, endDate);
+                getSingelData(startDate, endDate, CustomerName);
+            });
+
+        });
+
+
+        function getSingelData(startDate, endDate, CustomerName) {
+            loadingLayer();
+
+            $.ajax({
+                url: 'Item_detail_Download.php',
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate,
+                    "CustomerName": CustomerName
+                },
+                type: 'post',
+                success: function(output) {
+                    var salesAmount = [];
+                    customersArr = [];
+                    itemsArr = [];
+                    tableData = [];
+                    var data = jQuery.parseJSON(output);
+
+                    displayTable1(data, startDate, endDate);
+
+                    layer.close(layerIndex);
+                }
+            });
+        }
+        var table
+
+        function displayTable1(data, startDate, endDate) {
+            loadingLayer();
+            $("#oneTable").empty();
+            $("#oneTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            //generateDropdownList(customersArr);
+            table = $('#table').DataTable({
+                scrollY: setHeigth,
+
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: data,
+
+                "columns": [{
+                        "title": "SUK",
+                        "data": "ItemName"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "QTY",
+                        "data": "total_sales_items"
+                    },
+                    {
+                        "title": "Unit",
+                        "data": "Unit",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                    {
+                        "title": "Total",
+                        "data": "total_amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+
+                ],
+
+
+
+            });
+
+            //table.scroller.toPosition( 100 );
+            $('#table tbody').on('dblclick', 'tr', function() {
+                var data = table.row(this).data();
+                var CustomerName = $('#ddCustomerName').val();
+                openNewPage(data.level2_ListID, startDate, endDate, CustomerName, data.ItemName);
+
+
+            });
+
+            var sum = table.column(4).data().sum();
+            var total = Math.round(sum * 100) / 100;
+            console.log(total);
+
+        }
+
+        function openNewPage(ListID, startDate, endDate, Customer, ItemName) {
+            var url = "/Librareport/Item_detail_By_date.html?ListID=" + ListID + "&startDate=" + startDate + "&endDate=" + endDate + "&Customer=" + Customer;
+            creatIframe(url, ItemName)
+
+        }
+
+        function getData(startDate, endDate) {
+            loadingLayer();
+
+            $.ajax({
+                url: 'Item_detail_muti_Download.php',
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+
+                },
+                type: 'post',
+                success: function(output) {
+                    var salesAmount = [];
+                    customersArr = [];
+                    itemsArr = [];
+                    tableData = [];
+                    var data = jQuery.parseJSON(output);
+
+                    displayTable(data, startDate, endDate);
+
+                    layer.close(layerIndex);
+                }
+            });
+        }
+
+
+
+        function setdate() {
+            var sd = new Date();
+            sd.setDate(sd.getDate() - 1);
+            var sy = sd.getFullYear();
+            var sm = "01";
+            var sdd = "01";
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            $("#datemin").val(sy + "-" + sm + "-" + sdd);
+            $("#datemax").val(ey + "-" + em + "-" + edd);
+        }
+
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+
+        function displayTable(data, startDate, endDate) {
+            loadingLayer();
+            $("#multiTable").empty();
+            $("#multiTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            $("#multiTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table1" style="margin: 0"></table>');
+            $("#multiTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table2" style="margin: 0"></table>');
+            $("#multiTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table3" style="margin: 0"></table>');
+            $("#multiTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table4" style="margin: 0"></table>');
+            var amazonData = data.amazon;
+            var ebaylibarPayPalData = data.ebaylibarPayPal;
+            var neweggData = data.newegg;
+            var walmartData = data.walmart;
+            //generateDropdownList(customersArr);
+
+            var table1 = $('#table1').DataTable({
+                scrollY: setHeigth,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: amazonData,
+
+                "columns": [{
+                        "title": "SUK",
+                        "data": "ItemName"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "QTY",
+                        "data": "total_sales_items"
+                    },
+                    {
+                        "title": "Unit",
+                        "data": "Unit",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                    {
+                        "title": "Total",
+                        "data": "total_amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+
+                ]
+            });
+            var table2 = $('#table2').DataTable({
+                scrollY: setHeigth,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: ebaylibarPayPalData,
+
+                "columns": [{
+                        "title": "SUK",
+                        "data": "ItemName"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "QTY",
+                        "data": "total_sales_items"
+                    },
+                    {
+                        "title": "Unit",
+                        "data": "Unit",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                    {
+                        "title": "Total",
+                        "data": "total_amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+
+                ]
+            });
+            var table3 = $('#table3').DataTable({
+                scrollY: setHeigth,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: neweggData,
+
+                "columns": [{
+                        "title": "SUK",
+                        "data": "ItemName"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "QTY",
+                        "data": "total_sales_items"
+                    },
+                    {
+                        "title": "Unit",
+                        "data": "Unit",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                    {
+                        "title": "Total",
+                        "data": "total_amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+
+                ]
+
+            });
+            var table4 = $('#table4').DataTable({
+                scrollY: setHeigth,
+                scrollX: true,
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: walmartData,
+
+                "columns": [{
+                        "title": "SUK",
+                        "data": "ItemName"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "Description"
+                    },
+
+                    {
+                        "title": "QTY",
+                        "data": "total_sales_items"
+                    },
+                    {
+                        "title": "Unit",
+                        "data": "Unit",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+                    {
+                        "title": "Total",
+                        "data": "total_amount",
+                        render: function(data, type, row) {
+                            return Math.round(data * 100) / 100;
+                        }
+                    },
+
+                ]
+
+            });
+            $("#table1_wrapper").hide();
+            $("#table2_wrapper").hide();
+            $("#table3_wrapper").hide();
+            $("#table4_wrapper").hide();
+            $("#table1").hide();
+            $("#table2").hide();
+            $("#table3").hide();
+            $("#table4").hide();
+
+        }
+
+        function openNewPage(ListID, startDate, endDate, Customer, ItemName) {
+            var url = "/Librareport/Item_detail_By_date.html?ListID=" + ListID + "&startDate=" + startDate + "&endDate=" + endDate + "&Customer=" + Customer;
+            creatIframe(url, ItemName)
+
+        }
+    </script>
+    </script>
+</body>
+
+</html>

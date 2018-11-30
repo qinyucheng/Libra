@@ -1,0 +1,224 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedcolumns/3.2.6/css/fixedColumns.dataTables.min.css" />
+    <link href="multiselect/smoothness-1.11.2/jquery-ui-1.11.2.custom.css" rel="stylesheet">
+    <link href="multiselect/ui.dropdownchecklist.themeroller.css" rel="stylesheet">
+
+
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+       width: 1000px;
+        margin: 0 auto;
+    }
+	.Max_since_jan{
+    background-color: #edca07 !important;
+	}.Max_last_3_mon {
+		background-color: #edca07 !important;
+	}.Max_last_6_mon {
+		background-color: #edca07 !important;
+	}.Avg_last_6_mon {
+		background-color: #efec9e !important;
+	}.Avg_since_jan {
+		background-color: #efec9e !important;
+	}.Avg_last_3_mon {
+		background-color: #efec9e !important;
+	}.QuantityOnHand {
+		background-color: #03c13c !important;
+	}
+	table.dataTable tbody td {
+		word-break: break-word;
+		vertical-align: top;
+	}
+tr { height: 20px } 
+.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	span.markYellow {
+  background: yellow;
+  color: black;
+}
+	span.markBlue {
+  background: blue;
+  color: white;
+}
+</style>
+    <title>Max Avg vs Inventory</title>
+</head>
+
+<body>
+    <div style="float:left;margin-left:80px">
+        Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+    <div class="mt-20">
+
+        <!--table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table-->
+    </div>
+    <script type="text/javascript" src="multiselect/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="multiselect/jquery-ui-1.11.2.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+
+    <script type="text/javascript" src="multiselect/ui.dropdownchecklist.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.es6.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+
+            $("input[name='item']").on("keyup", function() {
+                var keyword = $(this).val(),
+                    options = {
+                        "element": "span",
+                        "className": "markYellow",
+                        "separateWordSearch": true
+                    },
+                    $ctx = $("#table tr  td:nth-child(1)");
+                $ctx.unmark({
+                    done: function() {
+                        $ctx.mark(keyword, options);
+                        $('.dataTables_scrollBody').scrollTop(0);
+                        // Go to row
+                        var scrollObj = $('.markYellow:first').position();
+                        if (scrollObj == "undefind") {
+                            $('.dataTables_scrollBody').scrollTop(0);
+                        } else {
+                            $('.dataTables_scrollBody').scrollTop(scrollObj.top);
+                        }
+
+
+                        // $('.dataTables_scrollBody').animate({scrollTop: scrollObj.top}, 500);
+
+
+                    }
+                });
+            });
+
+
+        });
+        var height = $(window).height();
+        var setHeigth = ($(window).height() - 150);
+        var width = $(window).width();
+        var setWidth = ($(window).width() - 100);
+
+        $(document).ready(function() {
+            $("div.dataTables_wrapper").css("width", setWidth);
+            $(".mt-20").empty();
+            $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+
+            getInventory();
+
+
+
+        });
+
+
+        function getInventory() {
+            loadingLayer();
+            $.ajax({
+                url: 'Inventory.php',
+                type: 'post',
+                success: function(output) {
+
+                    var InventoryArr = jQuery.parseJSON(output);
+                    displayToTable(InventoryArr);
+                    layer.close(layerIndex);
+
+                }
+            });
+
+        };
+
+
+
+        function displayToTable(InventoryArr) {
+            loadingLayer();
+
+            var table = $('#table').DataTable({
+                scrollY: setHeigth,
+
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: InventoryArr,
+
+                "columns": [{
+                        "title": "Name",
+                        "data": "Blank"
+                    },
+                    {
+                        "title": "Description",
+                        "data": "ItemDesc"
+                    },
+
+                    {
+                        "title": "Inventory",
+                        "data": "QuantityOnHand",
+						 render: function(data, type, row) {
+                            return Math.round(data) ;
+                        }
+                    },
+
+                ],
+
+
+
+            });
+
+
+
+        }
+
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+    </script>
+
+    </script>
+</body>
+
+</html>

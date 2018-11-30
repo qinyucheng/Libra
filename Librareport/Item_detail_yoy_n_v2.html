@@ -1,0 +1,847 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <style>
+   /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+       
+        margin: 0 auto;
+    }
+	table.dataTable tbody td {
+		word-break: break-word;
+		vertical-align: top;
+	}
+tr { height: 20px } 
+.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	span.markYellow {
+  background: yellow;
+  color: black;
+}
+	span.markBlue {
+  background: blue;
+  color: white;
+}
+
+</style>
+    <title>Item_detail_yoy</title>
+</head>
+
+<body>
+    <div class="text-c">
+        <div style="float:left;margin-left:80px">
+            Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+        <select name="yearpicker" id="yearpicker" width="80px"></select>
+
+        <button type="submit" class="btn btn-success" id="getNewReport" name=""><i class="icon-search"></i> Search</button>
+        <select name="group" id="selGroup" width="80px"></select>
+        <button type="submit" class="btn btn-success" id="btnDisplayGroup" name=""><i class="icon-search"></i> Display Group</button>
+
+    </div>
+    <div class="page-container">
+
+        <div id="container" style="min-width:700px;height:400px"></div>
+    </div>
+    <div>
+
+        <div class="mt-20">
+            <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table">
+
+
+            </table>
+        </div>
+    </div>
+ <script type="text/javascript" src="multiselect/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="multiselect/jquery-ui-1.11.2.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+    <script type="text/javascript" src="multiselect/ui.dropdownchecklist.js"></script>
+   
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script type="text/javascript" src="lib/accounting.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedcolumns/3.2.6/js/dataTables.fixedColumns.min.js"></script>
+    <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.es6.js"></script>
+    <script type="text/javascript">
+	 $(function() {
+
+            $("input[name='item']").on("keyup", function() {
+                var keyword = $(this).val(),
+                    options = {
+                        "element": "span",
+                        "className": "markYellow",
+                        "separateWordSearch": true
+                    },
+                    $ctx = $("#table tr  td:nth-child(1)");
+                $ctx.unmark({
+                    done: function() {
+                        $ctx.mark(keyword, options);
+                        $('.dataTables_scrollBody').scrollTop(0);
+                        // Go to row
+                        var scrollObj = $('.markYellow:first').position();
+                        if (typeof scrollObj === "undefined") {
+                            $('.dataTables_scrollBody').scrollTop(0);
+                        } else {
+                            $('.dataTables_scrollBody').scrollTop(scrollObj.top);
+                        }
+
+
+                        // $('.dataTables_scrollBody').animate({scrollTop: scrollObj.top}, 500);
+
+
+                    }
+                });
+            });
+
+
+        });
+        var startDate = '';
+        var endDate = '';
+        //var monthArr = monthList(startDate, endDate);
+        var nameArr = [];
+        var level2_ListIDArr = [];
+        var chartData = [];
+        var YOYdata = [];
+        $(document).ready(function() {
+            setYears();
+            getOrdreData()
+            //autoDisplayData();
+            $("#getNewReport").click(function() {
+                $(".mt-20").empty();
+                $(".mt-20").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+                var FinalDataArray = [];
+
+                getOrdreData()
+            });
+
+            $("#btnDisplayGroup").click(function() {
+                var groupName = document.getElementById("selGroup").value;
+                var countDisplayNum = 0;
+                for (var i in chartData) {
+                    var name = chartData[i].name;
+                    var n = name.includes(groupName);
+                    if (n == true) {
+                        countDisplayNum++;
+                        if (countDisplayNum <= 10) {
+                            chartData[i].visible = true;
+                        } else {
+                            chartData[i].visible = false;
+                        }
+
+                    } else {
+                        chartData[i].visible = false;
+                    }
+
+
+                }
+                if (groupName == 'ATV Tire') {
+                    displayChart2(chartData, '80')
+                } else if (groupName == 'AP Kits') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'Trailer tire') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'Hub & Drum') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'LED Lights') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'Brakes' || groupName == 'Light Box' || groupName == 'Lawn Garden Tire') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'Brake Parts' || groupName == 'Springs') {
+                    displayChart2(chartData, '400')
+                } else if (groupName == 'Safety Chains' || groupName == 'OTR tire' || groupName == 'Wheel Tire Assembly') {
+                    displayChart2(chartData, '300')
+                } else {
+                    displayChart2(chartData, '400')
+                }
+
+            });
+
+
+
+        });
+
+        function getOrdreData() {
+
+            var ed = new Date();
+            var ey = ed.getFullYear();
+            var startYear = document.getElementById("yearpicker").value;
+           if(startYear=='16-18')
+			{
+				 startDate = '2016-01-01';
+                endDate = getCurrentMonth();
+			}
+			else if(startYear=='17-18')
+			{
+				 startDate = '2017-01-01';
+                endDate = getCurrentMonth();
+			}
+			else 
+			{
+				if (startYear == ey) {
+                    startDate = startYear + "-01-01";
+                    var em = ed.getMonth() + 1;
+                    endDate = ey + "-" + em + "-31";
+
+                } else {
+                    startDate = startYear + "-01-01";
+                    endDate = startYear + "-12-31";
+
+                }
+			}
+
+
+
+
+            $.ajax({
+                url: 'Item_detail_yoy_n_v2_b.php',
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                type: 'post',
+                success: function(output) {
+                    var data = jQuery.parseJSON(output);
+                    nameArr = data;
+                    groupItem(nameArr);
+                    autoDisplayData(nameArr);
+                }
+            });
+        }
+
+        function groupItem(nameArr) {
+            var groupNameArr = [];
+            for (var i in nameArr) {
+                var tempArr = nameArr[i].level2_FullName.split(":");
+                var getName = tempArr[0];
+                var a = groupNameArr.indexOf(getName);
+                if (a == -1) {
+                    groupNameArr.push(getName);
+                }
+
+
+            }
+            setGroup(groupNameArr);
+
+        }
+
+        function setGroup(groupNameArr) {
+            for (var i in groupNameArr) {
+                $('#selGroup').append($('<option />').val(groupNameArr[i]).html(groupNameArr[i]));
+            }
+            $('#selGroup').append($('<option />').val("All").html("All"));
+
+        }
+
+        function displayChart(outputdata) {
+            $(".container").empty();
+            $(".highcharts-data-table").remove();
+            Highcharts.chart('container', {
+
+                title: {
+                    text: 'Item Monthly Sales',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                xAxis: {
+                    categories: monthArr
+                },
+                yAxis: {
+                    max: 500,
+                    min: 0
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+                plotOptions: {
+                    series: {
+                        events: {
+                            legendItemClick: function() {
+                                console.log(this.name);
+
+                            }
+                        }
+                    }
+                },
+                series: outputdata
+            });
+        }
+
+        function displayChart2(outputdata, MaxNum) {
+            $(".container").empty();
+            $(".highcharts-data-table").remove();
+            Highcharts.chart('container', {
+
+                title: {
+                    text: 'Item Monthly Sales',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                xAxis: {
+                    categories: monthArr
+                },
+                yAxis: {
+                    max: MaxNum,
+                    min: 0
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+                plotOptions: {
+                    series: {
+                        events: {
+                            legendItemClick: function() {
+                                console.log(this.name);
+                            }
+                        }
+                    }
+                },
+
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+
+                series: outputdata
+            });
+        }
+		 function displayChart3(outputdata, monthArr,MaxNum) {
+            $(".container").empty();
+            $(".highcharts-data-table").remove();
+            Highcharts.chart('container', {
+
+                title: {
+                    text: 'Item Monthly Sales',
+                    x: -20 //center
+                },
+                subtitle: {
+                    text: '',
+                    x: -20
+                },
+                xAxis: {
+                    categories: monthArr
+                },
+                yAxis: {
+                    max: MaxNum,
+                    min: 0
+                },
+                tooltip: {
+                    valueSuffix: ''
+                },
+              
+
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    borderWidth: 0
+                },
+
+                series: outputdata
+            });
+        }
+
+
+        function genarateYOYdata(Odata) {
+
+
+            var Data06 = genarateYOYdata2(Odata, "2016")
+
+            var Data07 = genarateYOYdata2(Odata, "2017")
+
+            var Data08 = genarateYOYdata2(Odata, "2018")
+            var Data07 = Data07.concat(Data06);
+            var Data08 = Data08.concat(Data07);
+            //displayChart(Data08)
+            YOYdata = Data08;
+
+        }
+
+        function genarateYOYdata2(Odata, year) {
+            var ourput = [];
+            for (var name in nameArr) {
+                var list = {}
+                var tempArr = [];
+                tempObj = {};
+                $.each(Odata, function(k, v) {
+                    var getMonth = v['Month'];
+                    var Arr = v['Month'].split('-');
+                    if (year == Arr[0]) {
+                        var Quantity = v['Quantity'];
+                        var getAmount = v['Amount'];
+                        var getName = v['level2_FullName'];
+
+                        if (nameArr[name].level2_FullName == getName) {
+                            tempObj = {};
+                            tempObj.month = getMonth;
+                            tempObj.Quantity = Quantity;
+                            tempObj.Amount = getAmount;
+                            tempArr.push(tempObj)
+
+                        }
+
+                    }
+
+
+                });
+                list.name = nameArr[name].level2_FullName;
+                var getFormatData = [];
+                var getFormatDataForTable = [];
+                if (year == "2016") {
+                    var monthArr = monthList("2016-01-01", "2016-12-31")
+                } else if (year == "2017") {
+                    var monthArr = monthList("2017-01-01", "2017-12-31")
+                } else if (year == "2018") {
+                    var monthArr = monthList("2018-01-01", "2018-12-31")
+                }
+                getFormatData = formatDiffYearDataForChart(monthArr, tempArr);
+                list.data = getFormatData;
+                var sum = getFormatData.reduce((a, b) => a + b, 0);
+                getFormatDataForTable[0] = nameArr[name].level2_FullName;
+
+                getFormatDataForTable = getFormatDataForTable.concat(getFormatData);
+
+
+                if (name <= 5) {
+                    list.visible = true;
+                } else {
+                    list.visible = false;
+                }
+
+                ourput.push(list);
+
+            }
+            return ourput;
+        }
+
+        function setYears() {
+            for (i = new Date().getFullYear(); i > 2013; i--) {
+                $('#yearpicker').append($('<option />').val(i).html(i));
+            }
+            $('#yearpicker').append($('<option />').val("17-18").html("17-18"));
+            $('#yearpicker').append($('<option />').val("16-18").html("16-18"));
+
+        }
+
+
+        function autoDisplayData(nameArr) {
+            var finalArr = [];
+            var tableArr = [];
+            var ed = new Date();
+            var ey = ed.getFullYear();
+            var startYear = document.getElementById("yearpicker").value;
+           
+			if(startYear=='16-18')
+			{
+				 startDate = '2016-01-01';
+                endDate = getCurrentMonth();
+			}
+			else if(startYear=='17-18')
+			{
+				 startDate = '2017-01-01';
+                endDate = getCurrentMonth();
+			}
+			else 
+			{
+				if (startYear == ey) {
+                    startDate = startYear + "-01-01";
+                    var em = ed.getMonth() + 1;
+                    endDate = ey + "-" + em + "-31";
+
+                } else {
+                    startDate = startYear + "-01-01";
+                    endDate = startYear + "-12-31";
+
+                }
+			}
+
+            monthArr = monthList(startDate, endDate);
+            $.ajax({
+                url: 'Item_detail_yoy_n_v2.php',
+                data: {
+                    "startDate": startDate,
+                    "endDate": endDate
+                },
+                type: 'post',
+                success: function(output) {
+                    var data = jQuery.parseJSON(output);
+                    if (startYear == "All") {
+                        Odata = data;
+                        //genarateYOYdata(Odata);
+                    } else {
+                        Odata = [];
+                    }
+
+                    var tempObj = {};
+
+
+                    for (var name in nameArr) {
+                        var list = {}
+                        var tempArr = [];
+                        tempObj = {};
+                        $.each(data, function(k, v) {
+                            var getMonth = v['Month'];
+                            var Quantity = v['Quantity'];
+                            var getAmount = v['Amount'];
+                            var getName = v['level2_FullName'];
+
+                            if (nameArr[name].level2_FullName == getName) {
+                                tempObj = {};
+                                tempObj.month = getMonth;
+                                tempObj.Quantity = Quantity;
+                                tempObj.Amount = getAmount;
+                                tempArr.push(tempObj)
+
+                            }
+
+                        });
+                        list.name = nameArr[name].level2_FullName;
+                        var getFormatData = [];
+                        var getFormatDataForTable = [];
+                        getFormatData = formatDataForChart(tempArr);
+                        list.data = getFormatData;
+                        var sum = getFormatData.reduce((a, b) => a + b, 0);
+                        getFormatDataForTable[0] = nameArr[name].level2_FullName;
+
+                        getFormatDataForTable = getFormatDataForTable.concat(getFormatData);
+                        tableArr.push(getFormatDataForTable);
+
+                        if (name <= 5) {
+                            list.visible = true;
+                        } else {
+                            list.visible = false;
+                        }
+
+                        finalArr.push(list);
+
+                    }
+                    chartData = finalArr;
+                    displayChart(finalArr);
+                    displayTable(tableArr)
+                }
+            });
+        }
+
+
+
+        function formatDataForChart(data) {
+            var newArr = [];
+            for (var i in monthArr) {
+
+                for (var v in data) {
+                    if (monthArr[i] == data[v].month) {
+                        var tempArr = getCurrentMonth().split('-');
+                        var year = tempArr[0];
+                        var month = tempArr[1];
+                        var currentMonth = year + '-' + month
+                        if (currentMonth == data[v].month) {
+
+                            var getdays = daysInMonth(year, month)
+                            var currentDate = getCurrentDate();
+                            var e_Quantity = (parseInt(data[v].Quantity) / currentDate);
+                            //newArr.push(Math.ceil(e_Quantity));
+                            newArr.push((Math.round(e_Quantity*100))/100);
+                        } else {
+							var getdays = daysInMonth(year, month)
+							var normalization=( parseInt(data[v].Quantity)/getdays)
+                            //newArr.push(Math.ceil(normalization));
+                            newArr.push(((Math.round(normalization*100))/100));
+                        }
+
+                        break;
+
+                    } else if (v == (data.length - 1)) {
+                        newArr.push(0);
+                    }
+
+
+                }
+            }
+
+
+
+            return newArr;
+        }
+
+        function formatDiffYearDataForChart(monthArr, data) {
+            var newArr = [];
+            for (var i in monthArr) {
+
+                for (var v in data) {
+                    if (monthArr[i] == data[v].month) {
+                        var tempArr = getCurrentMonth().split('-');
+                        var year = tempArr[0];
+                        var month = tempArr[1];
+                        var currentMonth = year + '-' + month
+                        if (currentMonth == data[v].month) {
+
+                            var getdays = daysInMonth(year, month)
+                            var currentDate = getCurrentDate();
+                            var e_Quantity = ((parseInt(data[v].Quantity) / currentDate) * getdays);
+                            newArr.push(Math.round(e_Quantity));
+                        } else {
+
+                            newArr.push(parseInt(data[v].Quantity));
+                        }
+
+                        break;
+
+                    } else if (v == (data.length - 1)) {
+                        newArr.push(0);
+                    }
+
+
+                }
+            }
+
+
+            return newArr;
+        }
+
+        function daysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function getCurrentDate() {
+            var d = new Date();
+            var day = d.getDate();
+            return day;
+        }
+
+        function displayTable(contentArr) {
+
+            var arr = [];
+            var obj = {};
+            obj.title = 'Name';
+            arr.push(obj);
+            for (var i in monthArr) {
+                obj = {};
+                obj.title = monthArr[i];
+                arr.push(obj)
+            }
+
+            var table = $('#table').DataTable({
+                 scrollCollapse: true,
+                paging: false,
+                autoWidth: true,
+				select: true,
+                data: contentArr,
+                "ordering": false,
+                columns: arr,
+				dom: 'Bfrtip',
+				 buttons: [{
+                    extend: 'excel',
+                    title: '',
+                    text: 'Download To Excel'
+                }],
+
+            });
+            $('#table tbody').on('click', 'tr', function() {
+                var nRow = $('#table thead tr')[0];
+				var row = table.row(this);
+                var data = row.data();
+				var index=table.row( this ).index()
+				var getMaxArr=[];
+				var tempObj={};
+                $.each(nRow.cells, function(i, v) {
+					
+					tempObj[v.innerText]=data[i];
+					getMaxArr.push(data[i])
+					
+                    
+                });
+				
+				
+                var monthArr06 = monthList("2016-01-01", "2016-12-31")
+                var monthArr07 = monthList("2017-01-01", "2017-12-31")
+                var monthArr08 = monthList("2018-01-01", "2018-12-31")
+				var tempArr=[];
+				var tempArr06=[];
+				var tempArr07=[];
+				var tempArr08=[];
+				var tempObj06={};
+				var tempObj07={};
+				var tempObj08={};
+				for (var property1 in tempObj) {
+					if(property1=='Name')
+					{
+					
+						tempObj06.name=tempObj[property1]+"_06";
+						tempObj07.name=tempObj[property1]+"_07";
+						tempObj08.name=tempObj[property1]+"_08";
+						
+						
+					}
+					else{
+					for(var i in monthArr06)
+						{
+							if(monthArr06[i]==property1)
+							{
+								tempArr06.push(tempObj[property1])
+							}
+						
+						}
+						for(var i in monthArr07)
+						{
+							if(monthArr07[i]==property1)
+							{
+								tempArr07.push(tempObj[property1])
+							}
+						
+						}
+						for(var i in monthArr08)
+						{
+							if(monthArr08[i]==property1)
+							{
+								tempArr08.push(tempObj[property1])
+							}
+						
+						}
+					
+					}
+			}
+
+					tempObj06.data=tempArr06
+					tempObj07.data=tempArr07
+					tempObj08.data=tempArr08
+					tempArr.push(tempObj06)
+					tempArr.push(tempObj07)
+					tempArr.push(tempObj08)
+					var monthArr=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Otc', 'Nov', 'Dec'];
+					getMaxArr.splice(0, 1);
+					var Max_num = Math.max.apply(Math, getMaxArr)
+					
+					if (Max_num >= 5000) {
+                   displayChart3(tempArr, monthArr,'10000') 
+				   
+                } else if (Max_num <= 5000 && Max_num >= 2500) {
+                   displayChart3(tempArr, monthArr,'5000') 
+                } else if (Max_num <= 2500 && Max_num >= 1000) {
+                     displayChart3(tempArr, monthArr,'2500') 
+                } else if (Max_num <= 1000 && Max_num >= 500) {
+                     displayChart3(tempArr, monthArr,'1000') 
+                } else if (Max_num <= 500 && Max_num >= 300) {
+                     displayChart3(tempArr, monthArr,'500') 
+                } else if (Max_num <= 300  && Max_num >= 200) {
+                      displayChart3(tempArr, monthArr,'300') 
+                } 
+				else if (Max_num <= 200  && Max_num >= 100) {
+                      displayChart3(tempArr, monthArr,'200') 
+                } 
+				else if (Max_num <= 100 ) {
+                      displayChart3(tempArr, monthArr,'100') 
+                } 
+					
+					
+
+            });
+            //console.log(contentArr);
+        }
+
+        function monthList(startDate, endDate) {
+            var start = startDate.split('-');
+            var end = endDate.split('-');
+            var startYear = parseInt(start[0]);
+            var endYear = parseInt(end[0]);
+            var dates = [];
+
+            for (var i = startYear; i <= endYear; i++) {
+                var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+                var startMon = i === startYear ? parseInt(start[1]) - 1 : 0;
+                for (var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j + 1) {
+                    var month = j + 1;
+                    var displayMonth = month < 10 ? '0' + month : month;
+                    dates.push([i, displayMonth].join('-'));
+                }
+            }
+            return dates;
+        }
+
+        function setdate() {
+            var sd = new Date();
+            sd.setDate(sd.getDate() - 1);
+            var sy = sd.getFullYear();
+            var sm = "01";
+            var sdd = "01";
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            $("#datemin").val(sy + "-" + sm);
+            $("#datemax").val(ey + "-" + em);
+        }
+
+        function getCurrentMonth() {
+
+            var ed = new Date();
+            ed.setDate(ed.getDate());
+            var ey = ed.getFullYear();
+            var em = ed.getMonth() + 1;
+            var edd = ed.getDate();
+            if (em >= 1 && em <= 9) {
+                em = "0" + em;
+            }
+            if (edd >= 0 && edd <= 9) {
+                edd = "0" + edd;
+            }
+            return ey + "-" + em + "-" + edd;
+
+        }
+
+    </script>
+</body>
+
+</html>

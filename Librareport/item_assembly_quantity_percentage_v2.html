@@ -1,0 +1,354 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" href="lib/zTree/v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <style>
+        /* Ensure that the demo table scrolls */
+		th, td { white-space: nowrap; }
+		div.dataTables_wrapper {
+       width:400px;
+        margin: 0 0;
+    }
+	.Max_since_jan{
+    background-color: #edca07 ;
+	}.Max_last_3_mon {
+		background-color: #edca07 ;
+	}.Max_last_6_mon {
+		background-color: #edca07 ;
+	}.Avg_last_6_mon {
+		background-color: #efec9e ;
+	}.Avg_since_jan {
+		background-color: #efec9e ;
+	}.Avg_last_3_mon {
+		background-color: #efec9e ;
+	}.QuantityOnHand {
+		background-color: #03c13c ;
+	}
+	table.dataTable tbody td {
+		word-break: break-word;
+		vertical-align: top;
+	}
+tr { height: 20px } 
+.table th, .table td {
+    padding: 8px;
+    line-height: 5px;
+ 
+}
+	span.markYellow {
+  background: yellow;
+  color: black;
+}
+	span.markBlue {
+  background: blue;
+  color: white;
+}
+button.dt-button.buttons-excel.buttons-html5 {
+    margin-left: 100px;
+}
+</style>
+    <title>product</title>
+</head>
+
+<body>
+      <div  style="margin-left:50px;margin-top:15px">
+  Find:<input type="text" name="item" class="form-control input-sm" placeholder="SKU..."> </div>
+    <div class="mt-20" id="oneTable" style=" float: left;margin-left: 10px;">
+    </div>
+    <div id="Edit" style=" float: left; margin-left:50px;margin-top:30px;">
+    </div>
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+    <script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.flash.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.19/features/searchHighlight/dataTables.searchHighlight.min.js"></script>
+    <script type="text/javascript" src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+    <script type="text/javascript" src="dataTables/sum.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.es6.js"></script>
+    <script src="https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js"></script>
+    <script src="https://cdn.datatables.net/scroller/1.5.1/js/dataTables.scroller.min.js"></script>
+    <script src="lib/JSExcel.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var editor; // use a global for the submit and return data rendering in the examples
+        var width = $(window).width();
+        var height = $(window).height();
+        var setHeigth = ($(window).height() - 130);
+
+        var setWidth = ($(window).width() - 300);
+
+        if ((width >= 1024) && (height >= 768)) {
+            //do something
+        } else {
+            //do something else
+        }
+        var data = [];
+        $(document).ready(function() {
+
+            getData();
+
+
+        });
+
+
+ $(function() {
+
+            $("input[name='item']").on("keyup", function() {
+                var keyword = $(this).val(),
+                    options = {
+                        "element": "span",
+                        "className": "markYellow",
+                        "separateWordSearch": true
+                    },
+                    $ctx = $("#table tr  td:nth-child(1)");
+                $ctx.unmark({
+                    done: function() {
+                        $ctx.mark(keyword, options);
+                        $('.dataTables_scrollBody').scrollTop(0);
+                        // Go to row
+                        var scrollObj = $('.markYellow:first').position();
+						
+						if (typeof scrollObj === "undefined") {
+							$('.dataTables_scrollBody').scrollTop(0);
+						}
+                        else {
+                            $('.dataTables_scrollBody').scrollTop(scrollObj.top);
+                        }
+
+
+                        // $('.dataTables_scrollBody').animate({scrollTop: scrollObj.top}, 500);
+
+
+                    }
+                });
+            });
+
+
+        });
+
+        function getData() {
+            loadingLayer();
+            $.ajax({
+                url: 'item_assembly_quantity_percentage_v2.php',
+
+                type: 'post',
+                success: function(output) {
+                    layer.close(layerIndex);
+                    data = jQuery.parseJSON(output);
+                    var result = [];
+                    $.each(data, function(i, e) {
+                        var matchingItems = $.grep(result, function(item) {
+                            return item.ListID === e.ListID && item.FullName === e.FullName;
+                        });
+                        if (matchingItems.length === 0) {
+                            result.push(e);
+                        }
+                    });
+                    displayTable(result);
+
+                }
+            });
+
+        }
+
+
+
+
+        function displayTable(result) {
+
+            $("#oneTable").empty();
+            $("#oneTable").append(' <table class="table table-border table-bordered table-bg table-hover table-sort table-responsive" id="table"></table>');
+
+            //generateDropdownList(customersArr);
+            table = $('#table').DataTable({
+
+                scrollY: setHeigth,
+                "searching": false,
+                scrollCollapse: true,
+                paging: false,
+                select: true,
+                fixedColumns: true,
+
+                data: result,
+                "columns": [{
+                        "title": "ListID",
+                        "data": "ListID"
+                    },
+                    {
+                        "title": "FullName",
+                        "data": "FullName"
+                    },
+
+                    {
+                        "title": "Status",
+                        "data": "STATUS"
+                    }
+
+
+                ],
+                "order": [
+                    [2, "asc"]
+                ],
+                "columnDefs": [{
+                        "targets": [2],
+                        "visible": false
+
+                    }, {
+                        "targets": [0],
+                        "visible": false
+
+                    }
+
+                ],
+                "fnRowCallback": function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+                    if (aData.STATUS == "0") {
+                        $('td', nRow).css('background-color', '#d9edf7');
+						console.log(nRow);
+                      
+                    }
+
+
+                }
+
+            });
+
+
+            $('#table tbody').on('click', 'tr', function() {
+                $("#Edit").empty();
+                var rowObj = table.row(this).data();
+                var tempArr = [];
+                for (var i in data) {
+                    if (data[i].ListID == rowObj.ListID) {
+                        tempArr.push(data[i]);
+                    }
+                }
+                var getDisplayList = removeDuplicates(tempArr);
+                var editHtml = "";
+                for (var i in getDisplayList) {
+                    var First_level_percentage = getDisplayList[i].First_level_percentage;
+                    var item_Quantity = getDisplayList[i].item_Quantity;
+                    var level1_FullName = getDisplayList[i].level1_FullName;
+                    var level1_ListID = getDisplayList[i].level1_ListID;
+                    var FullName = getDisplayList[i].FullName;
+
+                    editHtml += "<br><span>" + FullName + " : " + level1_FullName + "</span>"
+                    editHtml += "<br><span>Quantity : " + item_Quantity + "</span>"
+
+                    editHtml += "<br><input type='text' class='inputBox' id="+level1_ListID+" name='mytext_" + i + "' value=" + First_level_percentage + "></input><br>"
+                }
+
+                Edit.innerHTML = Edit.innerHTML + editHtml + "<br><button id='btnSubmit' type='button'>Submit</button>";
+                $("#btnSubmit").click(function() {
+
+                    var valueArr = [];
+					 var total = 0;
+                    $(".inputBox").each(function(index) {
+                        var tempObj={};
+						tempObj.level1_ListID=$(this).attr('id');
+						tempObj.First_level_percentage=$(this).val();
+                        console.log($(this).attr('id') + ": " + $(this).val());
+						valueArr.push(tempObj);
+						total += parseFloat($(this).val());
+                    });
+                   
+					if(total!=1)
+					{
+						alert("total should be 1!");
+						return;
+					}
+                   else{
+					for (var i = 0; i < valueArr.length; i++) {
+                        var level1_ListID=valueArr[i].level1_ListID;
+                        var First_level_percentage=valueArr[i].First_level_percentage;
+						for(var v in getDisplayList)
+						{
+							if(getDisplayList[v].level1_ListID==level1_ListID)
+							{
+								getDisplayList[v].First_level_percentage=First_level_percentage;
+								
+							}
+						}
+						
+						
+                    }
+					updateData(getDisplayList);
+				   
+				   }
+                });
+            });
+
+
+        }
+        var layerIndex;
+
+        function loadingLayer() {
+            layerIndex = layer.load(1, {
+                shade: [0.3, '#fff']
+            });
+
+        }
+        function updateData(data)
+		{
+			$.ajax({
+			   type: "POST",
+			   url: "item_assembly_quantity_percentage_updatedata_v2.php",
+				data: { activitiesArray: data },
+			   success: function(output) {
+			   var data = jQuery.parseJSON(output);
+					if(data.msg==1)
+					{
+						alert("Update Success!")
+						//$(".table tbody tr.selected td").css({"background-color": "red !important", "color": "white !important"});
+						$(".table tbody tr.selected td").css('background-color', '#42f450');
+					}
+					else{
+						alert(output)
+					}
+					
+				}
+			});
+		
+		}
+        function removeDuplicates(data) {
+            var result = [];
+            $.each(data, function(i, e) {
+                var matchingItems = $.grep(result, function(item) {
+                    return item.level1_ListID === e.level1_ListID && item.level1_FullName === e.level1_FullName;
+                });
+                if (matchingItems.length === 0) {
+                    result.push(e);
+                }
+            });
+
+            return result;
+
+        }
+    </script>
+</body>
+
+</html>

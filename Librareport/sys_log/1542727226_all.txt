@@ -1,0 +1,3 @@
+2018-11-20 04:20:03 pm
+total No. of  SalesByItemDetail: 225 
+items_sales_: updated 

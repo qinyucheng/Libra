@@ -1,0 +1,465 @@
+﻿<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <link rel="stylesheet" href="lib/zTree/v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+
+    <title>product</title>
+</head>
+
+<body>
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> Index <span class="c-gray en">&gt;</span> Product Comb <span class="c-gray en">&gt;</span> 产品分类 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新"><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+    <table class="table">
+        <tr>
+            <td width="200" class="va-t">
+                <div id="divTree" style="height: 800px; overflow:auto;">
+                    <ul id="treeDemo" class="ztree"></ul>
+            </td>
+            <td class="va-t">
+                <div class="page-container">
+
+                    <div class="row cl">
+                        <span id='displayName'></span>
+
+                    </div>
+                    <div class="row cl" id="displayChildren">
+
+
+                    </div>
+                    <div class="row cl" id="displayChildrenChildren">
+
+
+                    </div>
+                    <div class="row cl">
+                        <div class="col-9 col-offset-2">
+                            <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;Submit&nbsp;&nbsp;" id="submit">
+                        </div>
+                    </div>
+
+                </div>
+
+            </td>
+            </div>
+        </tr>
+    </table>
+
+    <script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+    <script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+    <script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script>
+
+    <script type="text/javascript" src="lib/zTree/v3/js/jquery.ztree.all-3.5.min.js"></script>
+    <script type="text/javascript">
+        var setting = {
+            view: {
+                dblClickExpand: false,
+                showLine: false,
+                selectedMulti: false
+            },
+            data: {
+                simpleData: {
+                    enable: true,
+                    idKey: "id",
+                    pIdKey: "pId",
+                    rootPId: ""
+                }
+            },
+            callback: {
+                beforeClick: function(treeId, treeNode) {
+                    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+                    if (treeNode.isParent == true && treeNode.isLastNode == false) {
+                        zTree.expandNode(treeNode);
+
+                        displayDetail(treeNode)
+                        return false;
+                    } else {
+                        demoIframe.attr("src", treeNode.file + ".html");
+                        return true;
+                    }
+                }
+            }
+        };
+
+        function displayDetail(treeNode) {
+            $('#displayChildren').empty();
+            $('#displayChildrenChildren').empty();
+            var combName = treeNode.name;
+            $('#displayName').html(combName);
+            var childrenArr = [];
+            childrenArr = treeNode.children;
+            var getChildrenNum = childrenArr.length;
+            var html = '';
+            var html2 = '------------------------------------------<br>';
+            var childrenChildren = false;
+			
+            for (var n in childrenArr) {
+                var count = 0;
+				
+                for (var i in childrenArr[n].children) {
+                    childrenChildren = true;
+					
+                    var Price_Percentage = parseFloat(childrenArr[n].children[i].Price_Percentage);
+                    count = count + Price_Percentage;
+
+                }
+                if (childrenArr[n].isLastNode) {
+                    var id = childrenArr[n].id;
+                    for (var v in arr) {
+                        var getID = arr[v].id;
+                        if (id == getID) {
+                            for (var t in arr[v].children)
+							{
+								for(var z in childrenArr[n].children)
+								{
+									
+								if(childrenArr[n].children[z].name==arr[v].children[t].name)
+								{
+								
+								var getName="'"+arr[v].children[t].name+"'";
+                                html2 +=arr[v].children[t].name + ':<input item_numbers='+childrenArr[n].children[z].item_numbers+' text='+getName+' type="text" class="input-text input2"   value=' + arr[v].children[t].Price_Percentage + ' placeholder="" id=' + arr[v].children[t].id + ' level1_ListID=' + childrenArr[n].id + ' ListID=' + childrenArr[n].ListID + ' name="product-category-name"> </input>';
+								}
+								}
+							}
+                        }
+                    }
+                }
+
+             
+                if (childrenChildren == true) {
+				
+				var getName="'"+childrenArr[n].name+"'";
+                    html += childrenArr[n].name + ':<input item_numbers='+childrenArr[n].item_numbers+' text='+getName+' type="text" class="input-text input1" ishasChildren=' + childrenChildren +'   value=' + count + ' placeholder="" id=' + childrenArr[n].id + ' ListID=' + childrenArr[n].ListID + ' level1_ListID=' + childrenArr[n].children[i].level1_ListID + ' name="product-category-name"></input>';
+                   
+                } else {
+				var getName="'"+childrenArr[n].name+"'";
+                    html += childrenArr[n].name + ':<input item_numbers='+childrenArr[n].item_numbers+' text='+getName+' type="text" class="input-text input1" ishasChildren=' + childrenChildren +'   value=' + childrenArr[n].Price_Percentage + ' placeholder="" id=' + childrenArr[n].id + '  ListID=' + childrenArr[n].ListID + '  name="product-category-name"></input>';
+                    //html +=  '<input type="text" class="input-text input1" ishasChildren=' + childrenChildren +'   value=' + childrenArr[n].Price_Percentage + ' placeholder="" id=' + childrenArr[n].id + '  ListID=' + childrenArr[n].ListID + '  name="product-category-name">'+childrenArr[n].name +'</input>';
+
+                }
+
+
+
+            }
+            $('#displayChildren').append(html);
+            if (childrenChildren == true)
+
+            {
+                $('#displayChildrenChildren').append(html2);
+            }
+
+
+        }
+
+        var code;
+
+        function showCode(str) {
+            if (!code) code = $("#code");
+            code.empty();
+            code.append("<li>" + str + "</li>");
+        }
+
+        $(document).ready(function() {
+            getData();
+
+
+        });
+
+
+        var arr = [];
+
+        function getData() {
+
+            $.ajax({
+                url: 'item_assembly_quantity_percentage.php',
+
+                type: 'post',
+                success: function(output) {
+
+                    var data = jQuery.parseJSON(output);
+                    var obj = {};
+                    var level1obj = {};
+                    var level2obj = {};
+                    var count = 0;
+                    var count2 = 0;
+                    arr = [];
+                    var temp = [];
+                    var temp2 = [];
+                    var allList = [];
+                    for (var i in data) {
+
+
+                        count++;
+                        obj = {};
+                        level1obj = {};
+                        level2obj = {};
+                        var ListID = data[i].ListID;
+                        var FullName = data[i].FullName;
+                        var Description = data[i].Description;
+                        var level1_ListID = data[i].level1_ListID;
+                        var level1_FullName = data[i].level1_FullName;
+                        var level2_ListID = data[i].level2_ListID;
+                        var level2_FullName = data[i].level2_FullName;
+                        var item_numbers = data[i].item_numbers;
+                        var Price_Percentage = data[i].Price_Percentage;
+                        if (FullName == 'Z group items:HD22017-2KITS') {
+                            console.log('stop')
+                        }
+                        if (level1_ListID != level2_ListID) {
+                            if (i < data.length - 1) {
+                                if (data[i].level2_ListID != data[parseInt(i) + 1].level2_ListID || data[i].level1_ListID != data[parseInt(i) + 1].level1_ListID || data[i].ListID != data[parseInt(i) + 1].ListID) {
+                                    level2obj.name = level2_FullName;
+									level2obj.level2_FullName = level2_FullName;
+                                    level2obj.id = level2_ListID;
+                                    level2obj.pid = level1_ListID;
+                                    level2obj.level1_ListID = level1_ListID;
+                                    level2obj.ListID = ListID;
+                                    level2obj.Price_Percentage = Price_Percentage;
+                                    level2obj.item_numbers = item_numbers;
+                                    temp.push(level2obj);
+                                }
+                            }
+                        }
+                        if (level1_ListID != ListID) {
+                            if (i < data.length - 1) {
+                                if (data[i].level1_ListID != data[parseInt(i) + 1].level1_ListID || data[i].ListID != data[parseInt(i) + 1].ListID) {
+                                    level1obj.name = level1_FullName;
+                                    level1obj.level1_FullName = level1_FullName;
+                                    level1obj.id = level1_ListID;
+                                    level1obj.children = temp;
+                                    level1obj.pid = ListID;
+                                    level1obj.ListID = ListID;
+                                    level1obj.Price_Percentage = Price_Percentage;
+									level1obj.item_numbers = item_numbers;
+                                    temp2.push(level1obj)
+                                    temp = [];
+                                }
+
+                            }
+                        }
+                        if (i < data.length - 1) {
+                            if (data[i].ListID != data[parseInt(i) + 1].ListID) {
+                                obj.name = FullName
+                                obj.FullName = FullName;
+                                obj.id = ListID;
+                                obj.pid = 0;
+                                if (temp2.length > 0) {
+                                    obj.children = temp2;
+                                    temp = [];
+                                    temp2 = [];
+                                    arr.push(obj);
+
+                                }
+
+                            }
+
+
+                        }
+                    }
+
+                    var zNodes2 = arr;
+                    var t = $("#treeDemo");
+                    t = $.fn.zTree.init(t, setting, zNodes2);
+                    demoIframe = $("#testIframe");
+                    //demoIframe.on("load", loadReady);
+                    var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+                    //zTree.selectNode(zTree.getNodeByParam("id",'11'));
+
+                }
+            });
+
+        }
+        $(document).ready(function() {
+            $("#submit").click(function() {
+                var ListName = $("#displayName")[0].innerText;
+                var level1 = $("#displayChildren :input");
+                var level2 = $("#displayChildrenChildren :input");
+                var count = 0;
+                var count2 = 0;
+                var updateArr = [];
+                var obj = {};
+                for (var i = 0; i < level1.length; i++) {
+				var level1_FullName;
+                    obj = {};
+                    var noteID = level1[i].id;
+                    var noteObj = $("#" + noteID)
+                    var ListID = $("#" + noteID).attr("listid")
+                    var level1_ListID = $("#" + noteID).attr("id")
+                    level1_FullName = $("#" + noteID).attr("text")
+                    var level2_ListID = $("#" + noteID).attr("level2_ListID")
+					
+                    var ishasChildren = $("#" + noteID).attr("ishasChildren")
+                    count += parseFloat(level1[i].value);
+					obj.FullName = ListName;
+					obj.level1_FullName = level1_FullName;
+					obj.level2_FullName = level1_FullName;
+                    var value = level1[i].value;
+                    obj.ListID = ListID;
+                    if (level1_ListID == undefined) {
+                        obj.level1_ListID = ListID;
+                       
+                    } else {
+                        obj.level1_ListID = level1_ListID;
+                    }
+                    if (level2_ListID == undefined) {
+                        obj.level2_ListID = level1_ListID;
+						
+                    } else {
+                        obj.level2_ListID = level2_ListID;
+                    }
+					obj.ishasChildren=ishasChildren;
+                    obj.value = value;
+                    updateArr.push(obj);
+
+
+                }
+                if (count < 0.99 || count>1) {
+                    alert("please check first level1 percentage!")
+                    return;
+                }
+                if (level2.length > 0) {
+                    for (var i = 0; i < level2.length; i++) {
+                        obj = {};
+                        count2 += parseFloat(level2[i].value);
+                        var noteID = level2[i].id;
+                        var noteObj = $("#" + noteID)
+                        var ListID = $("#" + noteID).attr("listid")
+                        var level1_ListID = $("#" + noteID).attr("level1_ListID")
+                        var level2_ListID = $("#" + noteID).attr("id")
+						var level2_FullName = $("#" + noteID).attr("text");
+						obj.FullName = ListName;
+						obj.level1_FullName = level1_FullName;
+						obj.level2_FullName = level2_FullName;
+                        var value = level2[i].value;
+                        obj.ListID = ListID;
+                        if (level1_ListID == undefined) {
+                            obj.level1_ListID = level1_ListID;
+                        } else {
+                            obj.level1_ListID = level1_ListID;
+                        }
+                        if (level2_ListID == undefined) {
+                            obj.level2_ListID = level1_ListID;
+                        } else {
+                            obj.level2_ListID = level2_ListID;
+                        }
+						
+                        obj.value = value;
+                        updateArr.push(obj);
+
+                    }
+                    if (count2 != 1) {
+                        alert("please check first level2 percentage!")
+                        return;
+                    }
+
+                }
+				// change percentage
+				for(var i in updateArr)
+				{
+					var ListID =updateArr[i].ListID;
+					var level1_ListID =updateArr[i].level1_ListID;
+					var level2_ListID =updateArr[i].level2_ListID;
+					var value =updateArr[i].value;
+					var ishasChildren = updateArr[i].ishasChildren;
+					
+					if (ishasChildren=="true" )
+					{
+						level1_ListID_value=value;
+						
+						for (n = updateArr.length - 1; n > i; n--) {
+							if(level1_ListID==updateArr[n].level1_ListID )
+								{
+									updateArr[n].value=value*updateArr[n].value;
+								}
+								
+							}
+							updateArr.splice(i, 1);
+					}
+					
+				}
+				//check item is exist if yes update if not insert
+				var test=checkListID(updateArr[0].ListID,updateArr);
+            });
+        });
+		
+		
+		 function checkListID(ListID,updateArr) {
+
+            $.ajax({
+                url: 'item_assembly_quantity_percentage_update.php?action=ListID',
+				data: {"ListID":ListID},
+                type: 'post',
+                success: function(json) {
+				var jsonObj=JSON.parse(json) 
+				if(jsonObj.success==1){
+						//do update
+						updatePercentage(ListID,updateArr)
+                }
+				else if(json.success==0){
+				
+						//do insert
+						var data=json;
+          
+
+                }
+				}
+            });
+
+        }
+		function updatePercentage(ListID,updateArr) {
+			var myJSON = JSON.stringify(updateArr);
+            $.ajax({
+                url: 'item_assembly_quantity_percentage_update.php?action=update',
+				data: {"ListID":ListID,"myJSON":myJSON},
+                type: 'post',
+                success: function(json) {
+				if(json.success==1){
+						
+                }
+				else if(json.success==0){
+				
+						
+						var data=json;
+          
+
+                }
+				}
+            });
+
+        }
+		function updatePercentage(ListID,updateArr) {
+			var myJSON = JSON.stringify(updateArr);
+            $.ajax({
+                url: 'item_assembly_quantity_percentage_update.php?action=insert',
+				data: {"ListID":ListID,"myJSON":myJSON},
+                type: 'post',
+                success: function(json) {
+				if(json.success==1){
+						
+                }
+				else if(json.success==0){
+				
+						
+						var data=json;
+          
+
+                }
+				}
+            });
+
+        }
+    </script>
+</body>
+
+</html>
